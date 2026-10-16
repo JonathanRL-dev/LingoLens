@@ -192,3 +192,38 @@ adalah angka scan XP saja, mengikuti contoh respons OpenAPI.
 
 Bruno tahap 3: `11-scan-attempt.bru` dan `12-exercises.bru`. Batasan verifikasi
 COCO-SSD dicatat di `docs/cv-model-card.md`.
+
+## Fase 9 tahap 4 — Jawaban dan pronunciation
+
+`POST /sessions/:sid/exercises/:eid/answers` memvalidasi ownership/status,
+memuat latihan dan key privat dari `loadSessionExercises`, lalu menilai dengan
+`shared.gradeAnswer`. Hasil disimpan sebagai teks jawaban pada kunci unik
+`session_id + sentence_id + attempt_no`; collision P2002 membaca kembali hasil
+baris yang sudah ada. Replay setelah jawaban benar mengembalikan benar dengan
+`pointsAwarded: 0`. `POST /sessions/:sid/pronunciation-attempts` memakai
+`shared.scorePronunciation` dan menyimpan transkrip/skor/confidence/sentence ID.
+Kedua endpoint tidak menulis XP.
+
+Respons answer mengikuti field OpenAPI: `correct`, `attemptNo`, `attemptsLeft`,
+`pointsAwarded`; `hint` hanya untuk salah pertama dan `correctAnswer` hanya pada
+salah kedua. Body answer dibatasi string 1–255 karakter, karena shared saat ini
+hanya menyediakan choice/cloze string; array pada OpenAPI hanya diperlukan order.
+`gradeAnswer` menghasilkan skor 0.5 pada jawaban benar percobaan kedua, walaupun
+`AnswerResponse.pointsAwarded` OpenAPI saat ini bertipe integer; server mengikuti
+skor dari shared sehingga field ini dapat berisi desimal.
+Respons pronunciation mengembalikan `score`, `level`, `passed`,
+`targetWordHeard`, serta feedback kode `good | almost | retry | target_missing`.
+
+Celah/asumsi: OpenAPI pronunciation mencontohkan feedback sebagai teks, sedangkan
+instruksi tahap ini meminta kode; server mengikuti instruksi tahap ini. Kolom
+`pronunciation_attempts` tidak memiliki tempat untuk menyimpan kode feedback,
+jadi kode hanya diturunkan dari hasil shared saat respons dibuat; DB menyimpan
+transkrip, skor, confidence, dan sentenceId. Schema juga membatasi transcript ke
+255 karakter (bukan 300) agar tidak melampaui `VARCHAR(255)`. Tanpa sentenceId,
+kalimat choice target dengan ID terkecil dipakai. ID kalimat berupa angka string
+DB seperti ID latihan; contoh OpenAPI `s-cup-choice` tidak cocok dengan skema INT.
+Sentence yang tidak ditemukan/bukan choice/milik kata lain menggunakan 404
+`NOT_FOUND`, satu-satunya kode generik kontrak. Recognition confidence yang
+tidak dikirim memakai default 0.85 dari shared.
+
+Bruno tahap 4: `13-answer.bru` dan `14-pronunciation.bru`.

@@ -1,0 +1,23 @@
+meta {
+  name: Pronunciation Attempt
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{baseUrl}}/sessions/{{sessionId}}/pronunciation-attempts
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "heardText": "This is a cup.",
+    "recognitionConfidence": 1,
+    "sentenceId": "10"
+  }
+}

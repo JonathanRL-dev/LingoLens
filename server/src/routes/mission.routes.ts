@@ -5,6 +5,12 @@ import { requireAuth } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 import { missionParamsSchema, sessionParamsSchema } from '../validators/missions';
 import { scanAttemptRequestSchema } from '../validators/scans';
+import {
+  answerRequestSchema,
+  exerciseParamsSchema,
+  pronunciationRequestSchema,
+} from '../validators/session-actions';
+import { strictLimiter } from '../middleware/rateLimit';
 
 export const missionRouter = Router();
 missionRouter.get('/missions', requireAuth, controller.list);
@@ -37,4 +43,18 @@ missionRouter.get(
   requireAuth,
   validate({ params: sessionParamsSchema }),
   sessionController.exercises,
+);
+missionRouter.post(
+  '/sessions/:sid/exercises/:eid/answers',
+  requireAuth,
+  strictLimiter,
+  validate({ params: exerciseParamsSchema, body: answerRequestSchema }),
+  sessionController.answer,
+);
+missionRouter.post(
+  '/sessions/:sid/pronunciation-attempts',
+  requireAuth,
+  strictLimiter,
+  validate({ params: sessionParamsSchema, body: pronunciationRequestSchema }),
+  sessionController.pronunciationAttempt,
 );

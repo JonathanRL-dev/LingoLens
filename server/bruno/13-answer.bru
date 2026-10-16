@@ -1,0 +1,21 @@
+meta {
+  name: Answer Exercise
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrl}}/sessions/{{sessionId}}/exercises/{{exerciseId}}/answers
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "answer": "{{answer}}"
+  }
+}

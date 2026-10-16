@@ -1,0 +1,22 @@
+import { z } from 'zod';
+
+export const exerciseParamsSchema = z
+  .object({
+    sid: z.string().min(1).max(36),
+    eid: z.string().min(1).max(36),
+  })
+  .strict();
+
+export const answerRequestSchema = z
+  .object({
+    answer: z.string().min(1).max(255),
+  })
+  .strict();
+
+export const pronunciationRequestSchema = z
+  .object({
+    heardText: z.string().min(1).max(255),
+    recognitionConfidence: z.number().finite().min(0).max(1).optional(),
+    sentenceId: z.string().min(1).max(64).optional(),
+  })
+  .strict();
