@@ -269,3 +269,23 @@ TODO(user): isi dari dokumen sumber
 
 **Konsekuensi:** Inferensi dan akses HP melalui HTTPS belum dapat diverifikasi.
 Library inferensi serta penyedia tunnel belum ditentukan dalam bahan.
+
+## 2026-10-16 — Kerangka server Express dan environment
+
+- Express 5 dipilih; penerusan galat handler async mengikuti perilaku Express 5.
+- Server memakai CommonJS, TypeScript ES2022 strict, dan tsx untuk dev/demo;
+  build produksi berada di luar lingkup prompt ini.
+- Prisma CLI dan @prisma/client dipin pada major 6.x. url datasource akan berada
+  di schema.prisma saat fase database dikerjakan; tidak ada perubahan Prisma schema di sini.
+- .env berada di server/ dan dimuat melalui --env-file; tanpa dotenv.
+  server/.env.example yang sudah ada diperbarui, tanpa membuat contoh kedua di akar.
+- Enam variabel divalidasi saat impor; pesan galat hanya menyebut nama variabel.
+  Waktu data aplikasi akan disimpan UTC; belum ada penyimpanan pada scaffold ini.
+- Alias @shared menuju ../shared/src/index.ts di tsconfig dan Vitest; shared tidak diubah.
+- Main masih berbasis Fase 0.2; cabang Fase 1 tidak digabung dalam prompt ini.
+- Catatan integrasi: skrip dev:server akar masih menyebut @lingolens/server;
+  gunakan npm run dev -w server. Batas perubahan prompt melarang perbaikan skrip akar itu.
+- Pada main, shared belum mendeklarasikan Zod; gunakan Zod 4.6.7 yang sebelumnya
+  dipakai jalur Fase 1. Vitest server dan root terpasang pada versi 4.1.12 yang sama.
+- Audit instalasi mencatat tiga temuan high pada rantai Prisma 6 / @prisma/config /
+  deepmerge-ts. Saran npm berpindah ke Prisma 7; tidak diterapkan karena batas major 6.

@@ -1,16 +1,6 @@
-import { createServer } from 'node:http';
-import process from 'node:process';
-import { APP_NAME } from '@lingolens/shared';
+import { env } from './lib/env';
+import { createApp } from './app';
 
-const server = createServer((request, response) => {
-  if (request.method === 'GET' && request.url === '/health') {
-    response.writeHead(200, { 'Content-Type': 'application/json' });
-    response.end(JSON.stringify({ status: 'ok', app: APP_NAME }));
-    return;
-  }
-
-  response.writeHead(404);
-  response.end();
+createApp().listen(env.PORT, () => {
+  console.info('LingoLens server listening on port ' + env.PORT);
 });
-
-server.listen(Number(process.env.PORT ?? 4000));
