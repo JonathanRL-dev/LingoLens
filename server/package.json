@@ -1,0 +1,15 @@
+{
+  "name": "@lingolens/server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@lingolens/shared": "*"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.6"
+  }
+}
