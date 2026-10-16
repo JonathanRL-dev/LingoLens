@@ -1,5 +1,9 @@
 # LingoLens
 
+========================================================================================
+LINK DEPLOYMENT (PROTOTYPE) : https://lingo-lens-rghv15dlb-jonathanrl-dev.vercel.app/
+========================================================================================
+
 Kerangka monorepo client, server, dan shared. Setelah setup, jalankan client dan server
 bersama dengan satu perintah: `npm run dev`.
 
