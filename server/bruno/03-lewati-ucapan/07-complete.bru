@@ -1,0 +1,19 @@
+meta {
+  name: Complete skipping speech
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/sessions/{{sessionId}}/complete
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  { "skippedPractice": false, "skippedSpeak": true }
+}

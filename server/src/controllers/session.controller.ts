@@ -4,6 +4,7 @@ import * as scan from '../services/scan.service';
 import { getSessionExercises } from '../services/exercise-session.service';
 import * as answers from '../services/answer.service';
 import * as pronunciation from '../services/pronunciation.service';
+import { completeSession } from '../services/complete.service';
 
 function userId(req: Request): string {
   if (!req.user) throw new AppError('UNAUTHORIZED', 'Autentikasi tidak sah');
@@ -36,4 +37,7 @@ export const pronunciationAttempt: RequestHandler = async (req, res) => {
     success: true,
     data: await pronunciation.submitPronunciation(userId(req), String(req.params.sid), req.body),
   });
+};
+export const complete: RequestHandler = async (req, res) => {
+  res.json(await completeSession(userId(req), String(req.params.sid), req.body));
 };

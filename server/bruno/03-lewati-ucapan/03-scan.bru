@@ -1,0 +1,24 @@
+meta {
+  name: Scan cup
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/sessions/{{sessionId}}/scan-attempts
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  { "model": "coco-ssd", "label": "cup", "confidence": 0.95, "latencyMs": 30 }
+}
+
+script:post-response {
+  bru.setEnvVar("choiceAnswer", res.getBody().data.vocabulary.meaning);
+  bru.setEnvVar("targetWord", res.getBody().data.vocabulary.word);
+}

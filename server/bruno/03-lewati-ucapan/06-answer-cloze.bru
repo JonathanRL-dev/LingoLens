@@ -1,0 +1,19 @@
+meta {
+  name: Answer cloze
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/sessions/{{sessionId}}/exercises/{{clozeExerciseId}}/answers
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  { "answer": "{{targetWord}}" }
+}

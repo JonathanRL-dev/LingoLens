@@ -1,0 +1,19 @@
+meta {
+  name: Complete first session
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/sessions/{{sessionId}}/complete
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  { "skippedPractice": false, "skippedSpeak": false }
+}

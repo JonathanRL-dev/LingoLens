@@ -1,0 +1,19 @@
+meta {
+  name: Complete collected cup
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrl}}/sessions/{{sessionId}}/complete
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  { "skippedPractice": false, "skippedSpeak": false }
+}

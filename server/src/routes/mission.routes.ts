@@ -11,6 +11,7 @@ import {
   pronunciationRequestSchema,
 } from '../validators/session-actions';
 import { strictLimiter } from '../middleware/rateLimit';
+import { completeRequestSchema } from '../validators/complete';
 
 export const missionRouter = Router();
 missionRouter.get('/missions', requireAuth, controller.list);
@@ -57,4 +58,11 @@ missionRouter.post(
   strictLimiter,
   validate({ params: sessionParamsSchema, body: pronunciationRequestSchema }),
   sessionController.pronunciationAttempt,
+);
+missionRouter.post(
+  '/sessions/:sid/complete',
+  requireAuth,
+  strictLimiter,
+  validate({ params: sessionParamsSchema, body: completeRequestSchema }),
+  sessionController.complete,
 );

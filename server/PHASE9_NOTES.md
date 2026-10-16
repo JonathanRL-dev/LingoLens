@@ -227,3 +227,49 @@ Sentence yang tidak ditemukan/bukan choice/milik kata lain menggunakan 404
 tidak dikirim memakai default 0.85 dari shared.
 
 Bruno tahap 4: `13-answer.bru` dan `14-pronunciation.bru`.
+
+## Fase 9 tahap 5 — Penyelesaian sesi
+
+`POST /sessions/:sid/complete` divalidasi lalu diproses oleh
+`complete.service.ts`. Hanya sesi milik pengguna berstatus `scanned` yang dapat
+diselesaikan. Semua soal harus solved atau exhausted kecuali
+`skippedPractice: true`; akurasi, skor sesi, bintang, dan ambang ucapan memakai
+fungsi `@shared`. Skor ucapan memakai nilai tertinggi dari percobaan sesi.
+
+Klaim perubahan `scanned → completed`, tiga event XP, total XP/level/streak,
+koleksi kata, dan snapshot `result_json` ditulis dalam satu transaksi Prisma.
+Klaim sesi bersyarat dan unique key event menangani permintaan serentak; replay
+mengirim snapshot JSON yang tersimpan tanpa kredit ulang. `nextMission` dihitung
+dalam transaksi sesudah status completed berubah dengan helper status misi yang
+sama. Streak memakai tanggal kalender Asia/Jakarta; nilai MySQL `DATE` disimpan
+sebagai UTC midnight dan dibaca sebagai tanggal UTC agar tidak bergeser sehari.
+`lib/time.ts` hanya mengubah instant yang diberikan menjadi tanggal Jakarta.
+
+Kode galat yang dipakai tetap kode kontrak: `SESSION_NOT_FOUND` (404),
+`SESSION_NOT_SCANNED` (409), `PRACTICE_INCOMPLETE` (409), dan
+`INTERNAL_ERROR` (500). Body completion hanya menerima dua boolean opsional dan
+body kosong dinormalisasi sebagai `{}` oleh Express JSON. Response snapshot
+memuat amplop `{ success, data }` lengkap supaya replay identik dengan respons
+pertama. `alreadyCollected` diperiksa di dalam transaksi sebelum upsert. Kolom
+`times_practiced` dibuat dengan default 1 lalu bertambah satu pada penyelesaian
+berikutnya.
+
+Asumsi: `practiceXp` dasar misi diskalakan oleh akurasi dan dibulatkan sebelum
+`computeXpComponents`; speak XP diberikan bila skor mencapai `SPEAK_PASS` dari
+shared. Skor ucapan adalah maksimum semua percobaan, bukan rata-rata. Jika tidak
+ada latihan/ucapan atau bagian dilewati, skornya 0. `result_json` menyimpan
+seluruh amplop respons; OpenAPI mendeskripsikan bentuk objek `data`.
+`nextMission` adalah misi open dengan `order_index` paling kecil sesudah misi
+yang selesai. `best_score` sesi dan koleksi memakai `sessionScore`.
+
+Tes MySQL tahap 5 mencakup alur pertama (130 total XP termasuk welcome, level 2),
+replay dan complete serentak, komponen setengah untuk kata terkoleksi, skip,
+ownership/status, kunci respons publik, invariant total XP terhadap seluruh
+event, serta batas streak WIB. Jalankan `npm run test:db -w server` untuk
+menjalankan integrasi terhadap database `lingolens_test`.
+
+Bruno memiliki workflow `01-misi-pertama-lengkap`, `02-lewati-latihan`,
+`03-lewati-ucapan`, dan `04-kata-sudah-dikoleksi`. Tiga alur pertama membuat
+guest dan menyimpan token; semua menyimpan session ID, ID latihan, dan jawaban
+dari respons sebelumnya. Alur kata terkoleksi menyelesaikan misi pertama dua
+kali pada guest yang sama, sehingga pembelian/akun sebelumnya tidak diperlukan.

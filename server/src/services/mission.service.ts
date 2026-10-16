@@ -10,8 +10,11 @@ export type MissionWithStatus = {
 };
 
 /** Read active missions and this user's completed sessions in two bounded queries. */
-export async function getMissionStatusesForUser(userId: string): Promise<MissionWithStatus[]> {
-  const db = getPrisma();
+export async function getMissionStatusesForUser(
+  userId: string,
+  database: Prisma.TransactionClient | ReturnType<typeof getPrisma> = getPrisma(),
+): Promise<MissionWithStatus[]> {
+  const db = database;
   const [missions, completed] = await Promise.all([
     db.mission.findMany({ where: { isActive: true }, orderBy: { orderIndex: 'asc' } }),
     db.missionSession.findMany({

@@ -1,0 +1,21 @@
+meta {
+  name: First exercises
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/sessions/{{sessionId}}/exercises
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+script:post-response {
+  const exercises = res.getBody().data.exercises;
+  bru.setEnvVar("choiceExerciseId", exercises.find((item) => item.kind === "choice").id);
+  bru.setEnvVar("clozeExerciseId", exercises.find((item) => item.kind === "cloze").id);
+}
