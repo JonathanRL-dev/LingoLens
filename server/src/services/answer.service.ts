@@ -25,12 +25,34 @@ function sharedExercise(
       speakText: exercise.speakText,
     };
   }
-  throw new AppError('EXERCISE_NOT_FOUND', 'Soal tidak ditemukan pada sesi ini');
+  return {
+    id: exercise.id,
+    kind: 'order',
+    tokens: exercise.tokens,
+    hintTranslation: exercise.hintTranslation,
+    endPunctuation: exercise.endPunctuation,
+  };
 }
 
-function answerText(exercise: Exercise, answer: string): string {
+function answerText(exercise: Exercise, answer: string | readonly string[]): string {
+  if (exercise.kind === 'order') {
+    if (!Array.isArray(answer)) throw new Error('Order answer must be an array of token IDs');
+    return JSON.stringify(answer);
+  }
+  if (typeof answer !== 'string') throw new Error('Choice and cloze answers must be a string');
   const options = exercise.kind === 'choice' ? exercise.options : exercise.chips;
   return options.find((option) => option.id === answer)?.text ?? answer;
+}
+
+function storedAnswer(exercise: Exercise, answer: string): string | string[] {
+  if (exercise.kind !== 'order') return answer;
+  try {
+    const parsed: unknown = JSON.parse(answer);
+    if (Array.isArray(parsed) && parsed.every((id) => typeof id === 'string')) return parsed;
+  } catch {
+    // Invalid persisted order answers are rejected by gradeAnswer below.
+  }
+  return [];
 }
 
 function responseFromAttempt(
@@ -44,7 +66,12 @@ function responseFromAttempt(
   },
   pointsOverride?: number,
 ) {
-  const result = gradeAnswer(exercise, key, attempt.answer, attempt.attemptNo);
+  const result = gradeAnswer(
+    exercise,
+    key,
+    storedAnswer(exercise, attempt.answer),
+    attempt.attemptNo,
+  );
   return {
     correct: attempt.isCorrect,
     attemptNo: attempt.attemptNo,
@@ -63,7 +90,7 @@ export async function submitExerciseAnswer(
   userId: string,
   sessionId: string,
   exerciseId: string,
-  answer: string,
+  answer: string | readonly string[],
 ) {
   const session = await requireScannedSession(userId, sessionId);
   const loaded = await loadSessionExercises(session);
@@ -83,7 +110,18 @@ export async function submitExerciseAnswer(
     previous.reduce((highest, attempt) => Math.max(highest, attempt.attemptNo), 0) + 1;
   if (attemptNo > 2)
     throw new AppError('ATTEMPTS_EXHAUSTED', 'Kesempatan menjawab soal telah habis');
-  const result = gradeAnswer(exercise, key, answer, attemptNo);
+  let result;
+  try {
+    result = gradeAnswer(exercise, key, answer, attemptNo);
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      /^(Unknown order token ID|Order answer|Choice and cloze answers)/.test(error.message)
+    ) {
+      throw new AppError('VALIDATION_ERROR', 'Jawaban tidak sesuai dengan token soal');
+    }
+    throw error;
+  }
   const storedAnswer = answerText(exercise, answer);
   try {
     const saved = await db.$transaction((tx) =>

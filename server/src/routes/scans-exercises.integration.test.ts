@@ -218,15 +218,40 @@ describe.skipIf(!dbEnabled)('scan and exercise endpoints - MySQL', () => {
     expect(withState[1].state).toEqual({ attemptsUsed: 2, solved: true, exhausted: false });
   });
 
-  it('returns a generic internal error for order plans unsupported by shared', async () => {
+  it('generates public order exercises and accepts an array of token IDs', async () => {
     const guest = await createGuest();
     await prisma.mission.update({ where: { id: 1 }, data: { exercisePlan: ['order'] } });
     const active = await session(guest.userId, 'scanned');
-    const result = await request(getTestApp())
+    const app = getTestApp();
+    const result = await request(app)
       .get(`/api/v1/sessions/${active.id}/exercises`)
       .auth(guest.token, { type: 'bearer' });
-    expect(result.status).toBe(500);
-    expect(result.body.error.code).toBe('INTERNAL_ERROR');
-    expect(JSON.stringify(result.body)).not.toMatch(/Unsupported exercise kind|order/);
+    expect(result.status).toBe(200);
+    const exercise = result.body.data.exercises[0];
+    expect(exercise.kind).toBe('order');
+    expect(exercise.hintTranslation).toBe('Saya meletakkan cangkir itu di sini.');
+    expect(exercise.endPunctuation).toBe('.');
+    expect(exercise.tokens).toHaveLength(5);
+    expect(new Set(exercise.tokens.map((token: { id: string }) => token.id)).size).toBe(5);
+    expect(exercise.tokens.map((token: { text: string }) => token.text).join(' ')).not.toBe(
+      'I put the cup here',
+    );
+
+    const tokenIds = ['I', 'put', 'the', 'cup', 'here'].map(
+      (text) => exercise.tokens.find((token: { text: string }) => token.text === text).id,
+    );
+    const invalid = await request(app)
+      .post(`/api/v1/sessions/${active.id}/exercises/${exercise.id}/answers`)
+      .auth(guest.token, { type: 'bearer' })
+      .send({ answer: ['unknown-token'] });
+    expect(invalid.status).toBe(400);
+    expect(invalid.body.error.code).toBe('VALIDATION_ERROR');
+
+    const answer = await request(app)
+      .post(`/api/v1/sessions/${active.id}/exercises/${exercise.id}/answers`)
+      .auth(guest.token, { type: 'bearer' })
+      .send({ answer: tokenIds });
+    expect(answer.status).toBe(200);
+    expect(answer.body.data.correct).toBe(true);
   });
 });

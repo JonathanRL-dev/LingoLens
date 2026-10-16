@@ -9,7 +9,7 @@ export const exerciseParamsSchema = z
 
 export const answerRequestSchema = z
   .object({
-    answer: z.string().min(1).max(255),
+    answer: z.union([z.string().min(1).max(255), z.array(z.string().min(1).max(255)).min(1)]),
   })
   .strict();
 

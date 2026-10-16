@@ -35,6 +35,16 @@ export async function seedMinimal(prisma: PrismaClient): Promise<void> {
           sentenceEn: 'This is a ___.',
           blankWord: item.word,
         },
+        {
+          id: item.id * 10 + 2,
+          kind: 'order' as const,
+          sentenceEn: item.word === 'cup' ? 'I put the cup here.' : 'I read the book here.',
+          blankWord: null,
+          wordsJson:
+            item.word === 'cup'
+              ? ['I', 'put', 'the', 'cup', 'here']
+              : ['I', 'read', 'the', 'book', 'here'],
+        },
       ];
       for (const sentence of sentences) {
         await tx.vocabularySentence.upsert({
@@ -92,6 +102,22 @@ export async function seedMinimal(prisma: PrismaClient): Promise<void> {
         license: 'own',
       },
     });
+    for (const [sentenceId, text] of [
+      [12, 'Saya meletakkan cangkir itu di sini.'],
+      [22, 'Saya membaca buku itu di sini.'],
+    ] as const) {
+      await tx.sentenceTranslation.upsert({
+        where: { sentenceId_languageCode: { sentenceId, languageCode: 'id-ID' } },
+        update: {},
+        create: {
+          sentenceId,
+          languageCode: 'id-ID',
+          text,
+          source: 'test-fixture',
+          license: 'own',
+        },
+      });
+    }
     await tx.vocabularyRelation.upsert({
       where: {
         vocabularyId_relatedVocabularyId_kind: {

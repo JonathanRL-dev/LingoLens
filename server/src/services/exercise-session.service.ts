@@ -49,6 +49,13 @@ export async function loadSessionExercises(session: MissionSession) {
     id: String(sentence.id),
     vocabularyId: String(sentence.vocabularyId),
     text: sentence.sentenceEn,
+    wordsJson:
+      Array.isArray(sentence.wordsJson) &&
+      sentence.wordsJson.every((word) => typeof word === 'string')
+        ? (sentence.wordsJson as string[])
+        : null,
+    hintTranslation:
+      sentence.translations.find((entry) => entry.languageCode === 'id-ID')?.text ?? '',
   }));
   let generated: ReturnType<typeof generateExercises>;
   try {
@@ -93,19 +100,22 @@ export async function loadSessionExercises(session: MissionSession) {
         options: exercise.options,
       };
     }
-    const hintTranslation =
-      sentence.translations.find((entry) => entry.languageCode === 'id-ID') ??
-      sentence.translations.find((entry) => entry.languageCode === 'zh-CN');
-    return {
-      id: exercise.id,
-      kind: exercise.kind,
-      index,
-      state,
-      parts: exercise.parts,
-      chips: exercise.chips,
-      hintTranslation: hintTranslation?.text ?? '',
-      speakText: exercise.speakText,
-    };
+    if (exercise.kind === 'cloze') {
+      const hintTranslation =
+        sentence.translations.find((entry) => entry.languageCode === 'id-ID') ??
+        sentence.translations.find((entry) => entry.languageCode === 'zh-CN');
+      return {
+        id: exercise.id,
+        kind: exercise.kind,
+        index,
+        state,
+        parts: exercise.parts,
+        chips: exercise.chips,
+        hintTranslation: hintTranslation?.text ?? '',
+        speakText: exercise.speakText,
+      };
+    }
+    return { ...exercise, index, state };
   });
   return { exercises, keys: generated.keys };
 }

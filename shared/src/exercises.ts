@@ -17,6 +17,8 @@ export interface Sentence {
   id: string;
   vocabularyId: string;
   text: string;
+  wordsJson?: readonly string[] | null;
+  hintTranslation?: string;
 }
 export interface ExercisePlanItem {
   sentenceId: string;
@@ -34,10 +36,18 @@ export type Exercise =
       parts: [string, string];
       chips: ExerciseOption[];
       speakText: string;
+    }
+  | {
+      id: string;
+      kind: 'order';
+      tokens: ExerciseOption[];
+      hintTranslation: string;
+      endPunctuation: string;
     };
 export interface ExerciseKey {
   exerciseId: string;
   answer: string;
+  hint?: string;
 }
 export interface GenerateExercisesInput {
   sessionId: string;
@@ -83,6 +93,40 @@ function shuffle<T>(values: readonly T[], random: () => number): T[] {
     [result[index], result[other]] = [result[other]!, result[index]!];
   }
   return result;
+}
+
+function orderWords(sentence: Sentence): { words: string[]; endPunctuation: string } {
+  const sourceWords = sentence.wordsJson;
+  if (
+    !sourceWords?.length ||
+    sourceWords.some((word) => typeof word !== 'string' || !word.trim())
+  ) {
+    throw new Error('Order sentence needs nonempty words_json tokens: ' + sentence.id);
+  }
+  const endPunctuation = sentence.text.match(/[.!?…]+$/u)?.[0] ?? '';
+  const words = sourceWords.map((word) => (word === 'I' ? 'I' : word.toLowerCase()));
+  const lastIndex = words.length - 1;
+  if (endPunctuation && lastIndex >= 0) {
+    words[lastIndex] = words[lastIndex]!.replace(/[.!?…]+$/u, '');
+  }
+  return { words, endPunctuation };
+}
+
+function shuffledOrder(words: readonly string[], sessionId: string, sentenceId: string): string[] {
+  const sameVisibleOrder = (candidate: readonly string[]) =>
+    candidate.every((word, index) => normalize(word) === normalize(words[index] ?? ''));
+  let candidate = shuffle(words, randomFor(sessionId, sentenceId));
+  if (!sameVisibleOrder(candidate)) return candidate;
+
+  // Shift the seed if the first seeded permutation accidentally matches the answer.
+  for (let shift = 1; shift <= 16; shift++) {
+    candidate = shuffle(words, randomFor(sessionId, `${sentenceId}:shift:${shift}`));
+    if (!sameVisibleOrder(candidate)) return candidate;
+  }
+
+  // Deterministic fallback for unusually unlucky seeds with at least two distinct words.
+  if (new Set(words.map(normalize)).size > 1) return [...words.slice(1), words[0]!];
+  return candidate;
 }
 
 /** Heuristik Inggris: hour/honest/heir vokal; university/unit/user/european/one konsonan. */
@@ -135,7 +179,7 @@ export function generateExercises(input: GenerateExercisesInput): {
         !normalize(item.word).includes(targetWord),
     );
   for (const entry of orderedPlan) {
-    if (entry.kind !== 'choice' && entry.kind !== 'cloze') {
+    if (entry.kind !== 'choice' && entry.kind !== 'cloze' && entry.kind !== 'order') {
       throw new Error('Unsupported exercise kind: ' + entry.kind);
     }
     if (used.has(entry.sentenceId))
@@ -173,7 +217,7 @@ export function generateExercises(input: GenerateExercisesInput): {
         options: options([target.meaning, ...distractors]),
       });
       keys.push({ exerciseId: sentence.id, answer: target.meaning });
-    } else {
+    } else if (entry.kind === 'cloze') {
       const parts = sentence.text.split('___');
       if (parts.length !== 2)
         throw new Error('Expected exactly one ___ in sentence ' + sentence.id);
@@ -207,6 +251,20 @@ export function generateExercises(input: GenerateExercisesInput): {
         speakText,
       });
       keys.push({ exerciseId: sentence.id, answer: target.word });
+    } else {
+      const { words, endPunctuation } = orderWords(sentence);
+      const shuffledWords = shuffledOrder(words, sessionId, sentence.id);
+      const tokens = shuffledWords.map((text, index) => ({ id: `t${index}`, text }));
+      const answer = normalize(sentence.text.replace(/[.!?…]+$/u, ''));
+      exercises.push({
+        id: sentence.id,
+        kind: 'order',
+        tokens,
+        hintTranslation: sentence.hintTranslation ?? '',
+        endPunctuation,
+      });
+      const hint = sentence.text.match(/[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/u)?.[0] ?? '';
+      keys.push({ exerciseId: sentence.id, answer, hint });
     }
   }
   return { exercises, keys };
@@ -221,19 +279,41 @@ export function isExerciseSettled(state: ExerciseState): boolean {
 export function gradeAnswer(
   exercise: Exercise,
   key: ExerciseKey,
-  answer: string,
+  answer: string | readonly string[],
   attemptNo: number,
 ): GradeResult {
   if (!Number.isInteger(attemptNo) || attemptNo < 1 || attemptNo > MAX_ATTEMPTS) {
     throw new Error('attemptNo must be an integer from 1 to ' + MAX_ATTEMPTS);
   }
   if (key.exerciseId !== exercise.id) throw new Error('Exercise key does not match exercise');
-  const choices = exercise.kind === 'choice' ? exercise.options : exercise.chips;
-  const text = choices.find((option) => option.id === answer)?.text ?? answer;
+  let text: string;
+  if (exercise.kind === 'order') {
+    if (!Array.isArray(answer)) throw new Error('Order answer must be an array of token IDs');
+    const tokensById = new Map(exercise.tokens.map((token) => [token.id, token.text]));
+    if (answer.some((id) => !tokensById.has(id))) throw new Error('Unknown order token ID');
+    if (
+      answer.length !== exercise.tokens.length ||
+      new Set(answer).size !== exercise.tokens.length
+    ) {
+      throw new Error('Order answer must use every token ID exactly once');
+    }
+    text = answer.map((id) => tokensById.get(id)!).join(' ');
+  } else {
+    if (typeof answer !== 'string') throw new Error('Choice and cloze answers must be a string');
+    const choices = exercise.kind === 'choice' ? exercise.options : exercise.chips;
+    text = choices.find((option) => option.id === answer)?.text ?? answer;
+  }
   if (normalize(text) === normalize(key.answer)) {
     return { correct: true, score: attemptNo === 1 ? FULL_SCORE : RETRY_SCORE };
   }
   return attemptNo === MAX_ATTEMPTS
     ? { correct: false, score: ZERO_SCORE, correctAnswer: key.answer }
-    : { correct: false, score: ZERO_SCORE, hint: Array.from(normalize(key.answer))[0] ?? '' };
+    : {
+        correct: false,
+        score: ZERO_SCORE,
+        hint:
+          exercise.kind === 'order'
+            ? (key.hint ?? key.answer.split(' ')[0] ?? '')
+            : (Array.from(normalize(key.answer))[0] ?? ''),
+      };
 }

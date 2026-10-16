@@ -42,9 +42,26 @@ const fixture = (): GenerateExercisesInput => ({
     { sentenceId: 'cloze', kind: 'cloze' },
   ],
 });
+const orderFixture = (sessionId = 'order-session'): GenerateExercisesInput => ({
+  ...fixture(),
+  sessionId,
+  sentences: [
+    {
+      id: 'order-sentence',
+      vocabularyId: target.id,
+      text: 'I see the the cup.',
+      wordsJson: ['I', 'see', 'the', 'the', 'cup'],
+      hintTranslation: 'Saya melihat cangkir itu.',
+    },
+  ],
+  plan: [{ sentenceId: 'order-sentence', kind: 'order' }],
+});
 const norm = (text: string) => text.trim().toLowerCase().replace(/\s+/g, ' ');
-const texts = (exercise: Exercise) =>
-  (exercise.kind === 'choice' ? exercise.options : exercise.chips).map((option) => option.text);
+const texts = (exercise: Exercise) => {
+  if (exercise.kind === 'choice') return exercise.options.map((option) => option.text);
+  if (exercise.kind === 'cloze') return exercise.chips.map((option) => option.text);
+  return exercise.tokens.map((token) => token.text);
+};
 function clozeInput(text: string, vocabulary = target): GenerateExercisesInput {
   return {
     ...fixture(),
@@ -186,14 +203,23 @@ describe('generateExercises', () => {
       const fields =
         exercise.kind === 'choice'
           ? ['id', 'kind', 'text', 'options']
-          : ['id', 'kind', 'parts', 'chips', 'speakText'];
+          : exercise.kind === 'cloze'
+            ? ['id', 'kind', 'parts', 'chips', 'speakText']
+            : ['id', 'kind', 'tokens', 'hintTranslation', 'endPunctuation'];
       expect(Reflect.ownKeys(exercise).sort()).toEqual(fields.sort());
       expect(JSON.parse(JSON.stringify(exercise))).toEqual(exercise);
       expect(JSON.stringify(exercise)).not.toMatch(/correctAnswer|correctOption|answer|key/i);
-      const options = exercise.kind === 'choice' ? exercise.options : exercise.chips;
+      const options =
+        exercise.kind === 'choice'
+          ? exercise.options
+          : exercise.kind === 'cloze'
+            ? exercise.chips
+            : exercise.tokens;
       options.forEach((option, index) => {
         expect(Reflect.ownKeys(option).sort()).toEqual(['id', 'text']);
-        expect(option.id).toBe(JSON.stringify([exercise.id, index]));
+        expect(option.id).toBe(
+          exercise.kind === 'order' ? `t${index}` : JSON.stringify([exercise.id, index]),
+        );
       });
     }
   });
@@ -220,8 +246,8 @@ describe('generateExercises', () => {
 
   test('rejects unsupported kinds, missing or duplicate sentences, and speakText leaks', () => {
     expect(() =>
-      generateExercises({ ...fixture(), plan: [{ sentenceId: 'choice', kind: 'order' }] }),
-    ).toThrow('Unsupported exercise kind: order');
+      generateExercises({ ...fixture(), plan: [{ sentenceId: 'choice', kind: 'other' }] }),
+    ).toThrow('Unsupported exercise kind: other');
     expect(() => generateExercises({ ...fixture(), sentences: [] })).toThrow(
       'Expected one target sentence',
     );
@@ -244,6 +270,67 @@ describe('generateExercises', () => {
     gradeAnswer(output.exercises[0]!, output.keys[0]!, 'wrong', 1);
     expect(input).toEqual(snapshot);
     expect(output).toEqual(outputSnapshot);
+  });
+});
+
+describe('order exercises', () => {
+  test('uses a seeded shuffle, lowercase words except I, Indonesian hint, and sentence punctuation', () => {
+    const generated = generateExercises(orderFixture());
+    const exercise = generated.exercises[0]!;
+    expect(exercise.kind).toBe('order');
+    if (exercise.kind !== 'order') throw new Error('Expected order exercise');
+
+    expect(exercise.tokens.map(({ text }) => text).join(' ')).not.toBe('I see the the cup');
+    expect(exercise.tokens.map(({ id }) => id)).toEqual(['t0', 't1', 't2', 't3', 't4']);
+    for (const { text } of exercise.tokens) {
+      if (text !== 'I') expect(text).toBe(text.toLowerCase());
+    }
+    expect(exercise.hintTranslation).toBe('Saya melihat cangkir itu.');
+    expect(exercise.endPunctuation).toBe('.');
+    expect(generated.keys[0]).toEqual({
+      exerciseId: 'order-sentence',
+      answer: 'i see the the cup',
+      hint: 'I',
+    });
+  });
+
+  test('accepts swapped duplicate-word token IDs and compares case-insensitively', () => {
+    const { exercises, keys } = generateExercises(orderFixture());
+    const exercise = exercises[0]!;
+    if (exercise.kind !== 'order') throw new Error('Expected order exercise');
+
+    const wanted = ['I', 'see', 'the', 'the', 'cup'];
+    const unused = [...exercise.tokens];
+    const answer = wanted.map((text) => {
+      const index = unused.findIndex((token) => token.text.toLowerCase() === text.toLowerCase());
+      return unused.splice(index, 1)[0]!.id;
+    });
+    const duplicatePositions = wanted.flatMap((text, index) => (text === 'the' ? [index] : []));
+    [answer[duplicatePositions[0]!], answer[duplicatePositions[1]!]] = [
+      answer[duplicatePositions[1]!]!,
+      answer[duplicatePositions[0]!]!,
+    ];
+    expect(gradeAnswer(exercise, keys[0]!, answer, 1)).toEqual({ correct: true, score: 1 });
+  });
+
+  test('rejects unknown token IDs and hints with the first word on an incorrect first attempt', () => {
+    const { exercises, keys } = generateExercises(orderFixture());
+    const exercise = exercises[0]!;
+    if (exercise.kind !== 'order') throw new Error('Expected order exercise');
+    expect(() => gradeAnswer(exercise, keys[0]!, ['unknown'], 1)).toThrow('Unknown order token ID');
+
+    const wrongAnswer = [...exercise.tokens].reverse().map(({ id }) => id);
+    expect(gradeAnswer(exercise, keys[0]!, wrongAnswer, 1)).toEqual({
+      correct: false,
+      score: 0,
+      hint: 'I',
+    });
+  });
+
+  test('is deterministic for the same sessionId and sentenceId', () => {
+    expect(generateExercises(orderFixture('same-session'))).toEqual(
+      generateExercises(orderFixture('same-session')),
+    );
   });
 });
 
@@ -288,6 +375,7 @@ describe('gradeAnswer', () => {
       score: 0,
       correctAnswer: key.answer,
     });
+    if (exercise.kind === 'order') throw new Error('Fixture intentionally covers choice and cloze');
     const options = exercise.kind === 'choice' ? exercise.options : exercise.chips;
     const remapped = options.map((option) => ({ ...option, id: 'remapped-' + option.id }));
     const changed: Exercise =
