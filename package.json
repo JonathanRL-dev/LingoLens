@@ -23,6 +23,9 @@
     "api:types": "openapi-typescript docs/openapi.yaml -o client/src/api/schema.d.ts",
     "api:lint": "redocly lint docs/openapi.yaml"
   },
+  "dependencies": {
+    "zod": "^4.6.7"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
     "@redocly/cli": "^2.64.1",
@@ -33,7 +36,6 @@
     "prettier": "^3.6.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.0",
-    "vitest": "^4.1.11",
-    "zod": "^4.6.7"
+    "vitest": "^4.1.11"
   }
 }
