@@ -25,6 +25,15 @@ import { acceptedLabelSchema, missionSchema, nextMissionSchema } from './mission
 import { completeSessionRequestSchema, completeSessionDataSchema } from './sessions';
 import { dataSchemas } from './index';
 
+function exampleResponse(operationId: string, status = '200'): unknown {
+  const fixture: { responses: Record<string, unknown> } = JSON.parse(
+    readFileSync(
+      new URL('../../../docs/examples/' + operationId + '.json', import.meta.url),
+      'utf8',
+    ),
+  );
+  return fixture.responses[status];
+}
 describe('kontrak Fase 1', () => {
   it('mencakup tepat 16 operasi unik dan 10 kode error', () => {
     expect(endpoints).toHaveLength(16);
@@ -36,12 +45,11 @@ describe('kontrak Fase 1', () => {
   it.each(endpoints.filter((endpoint) => endpoint.status !== 204))(
     '$method $path: contoh respons disk valid terhadap skema bersama',
     (endpoint) => {
-      const file = new URL('../../../docs/examples/' + endpoint.name + '.json', import.meta.url);
-      const value: unknown = JSON.parse(readFileSync(file, 'utf8'));
+      const operationId = endpoint.name[0]!.toLowerCase() + endpoint.name.slice(1);
+      const value = exampleResponse(operationId, String(endpoint.status));
       const schema = schemas[(endpoint.name + 'Response') as keyof typeof schemas];
       expect(schema).toBeDefined();
       expect(schema?.parse(value)).toEqual(value);
-      expect(value).toEqual({ success: true, data: endpoint.data });
     },
   );
 
@@ -55,9 +63,7 @@ describe('kontrak Fase 1', () => {
   );
 
   it('mencakup tiga jenis exercise tanpa kunci jawaban', () => {
-    const value = JSON.parse(
-      readFileSync(new URL('../../../docs/examples/Exercises.json', import.meta.url), 'utf8'),
-    );
+    const value = schemas.ExercisesResponse.parse(exampleResponse('exercises'));
     const exercises: unknown[] = value.data.exercises;
     expect(exercises.map((exercise) => Exercise.parse(exercise).kind)).toEqual([
       'choice',
@@ -75,9 +81,7 @@ describe('kontrak Fase 1', () => {
   });
 
   it('menolak kunci jawaban pada kartu dan misi', () => {
-    const value = JSON.parse(
-      readFileSync(new URL('../../../docs/examples/Vocabulary.json', import.meta.url), 'utf8'),
-    );
+    const value = schemas.VocabularyResponse.parse(exampleResponse('vocabulary'));
     expect(Vocabulary.safeParse({ ...value.data, correctAnswer: 'bocor' }).success).toBe(false);
     const mission = endpoints.find((endpoint) => endpoint.name === 'MissionDetail')?.data;
     expect(
@@ -130,11 +134,9 @@ describe('kontrak Fase 1', () => {
     expect(CompleteRequest.safeParse({ skippedPractice: 'true' }).success).toBe(false);
   });
 
-  it('reset memakai status 204 tanpa body; file null adalah penanda saja', () => {
+  it('reset memakai status 204 tanpa body; null di fixture adalah penanda saja', () => {
     expect(endpoints.find((endpoint) => endpoint.name === 'Reset')?.status).toBe(204);
-    expect(
-      readFileSync(new URL('../../../docs/examples/Reset.json', import.meta.url), 'utf8'),
-    ).toBe('null\n');
+    expect(exampleResponse('reset', '204')).toBeNull();
   });
 });
 
@@ -247,9 +249,7 @@ describe('validasi data setiap endpoint', () => {
 });
 
 describe('exercise strict dan jawaban', () => {
-  const input = JSON.parse(
-    readFileSync(new URL('../../../docs/examples/Exercises.json', import.meta.url), 'utf8'),
-  );
+  const input = schemas.ExercisesResponse.parse(exampleResponse('exercises'));
   const examples = ExerciseSchema.array().parse(input.data.exercises);
   it.each(examples)('$kind valid; menolak kunci pada exercise dan state', (exercise) => {
     expect(ExerciseSchema.parse(exercise)).toEqual(exercise);

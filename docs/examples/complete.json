@@ -1,0 +1,98 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/api/v1/sessions/session-demo/complete",
+    "headers": {
+      "Authorization": "Bearer example-jwt-not-a-real-token"
+    },
+    "body": {
+      "skippedPractice": false,
+      "skippedSpeak": false
+    }
+  },
+  "responses": {
+    "200": {
+      "success": true,
+      "data": {
+        "stars": 3,
+        "sessionScore": 100,
+        "practiceAccuracy": 100,
+        "speakScore": 100,
+        "xpBreakdown": {
+          "scanXp": 50,
+          "practiceXp": 30,
+          "speakXp": 30
+        },
+        "totalXpAwarded": 110,
+        "levelUp": true,
+        "newLevel": 2,
+        "xpInLevel": 30,
+        "xpForNextLevel": 200,
+        "collectedWord": {
+          "id": "v-cup",
+          "word": "cup",
+          "phonetic": "/kʌp/",
+          "meaning": "cangkir",
+          "imageUrl": "/images/cup.svg",
+          "category": "Minum dan makan",
+          "translations": [],
+          "exampleSentence": {
+            "id": "s-cup-choice",
+            "text": "This is my red cup."
+          },
+          "related": []
+        },
+        "alreadyCollected": false,
+        "nextMission": {
+          "id": "m2",
+          "slug": "untuk-makan",
+          "title": "Untuk makan",
+          "hint": "Cari mangkuk, sendok, pisang, atau apel",
+          "category": "Minum dan makan",
+          "difficulty": "easy",
+          "rewardXp": 110,
+          "status": "available",
+          "bestStars": 0,
+          "exercisePlan": [
+            "choice",
+            "cloze",
+            "order"
+          ]
+        }
+      }
+    },
+    "409": {
+      "success": false,
+      "error": {
+        "code": "PRACTICE_INCOMPLETE",
+        "message": "Masih ada soal yang belum selesai.",
+        "details": null
+      }
+    }
+  },
+  "scenarios": {
+    "notScanned": {
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/sessions/session-demo/complete",
+        "headers": {
+          "Authorization": "Bearer example-jwt-not-a-real-token"
+        },
+        "body": {
+          "skippedPractice": false,
+          "skippedSpeak": false
+        }
+      },
+      "responses": {
+        "409": {
+          "success": false,
+          "error": {
+            "code": "SESSION_NOT_SCANNED",
+            "message": "Sesi belum memiliki pindai berhasil.",
+            "details": null
+          }
+        }
+      }
+    }
+  }
+}

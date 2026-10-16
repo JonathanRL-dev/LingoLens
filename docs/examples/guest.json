@@ -1,0 +1,36 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/api/v1/auth/guest",
+    "headers": {},
+    "body": {
+      "nickname": "Bintang"
+    }
+  },
+  "responses": {
+    "201": {
+      "success": true,
+      "data": {
+        "token": "example-jwt-not-a-real-token",
+        "user": {
+          "id": "u-demo",
+          "nickname": "Bintang",
+          "level": 1,
+          "totalXp": 20,
+          "xpInLevel": 20,
+          "xpForNextLevel": 100,
+          "streak": 0,
+          "collectedCount": 0
+        }
+      }
+    },
+    "422": {
+      "success": false,
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "message": "Nickname tidak boleh kosong.",
+        "details": null
+      }
+    }
+  }
+}

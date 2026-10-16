@@ -1,0 +1,39 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/api/v1/missions/m1/sessions",
+    "headers": {
+      "Authorization": "Bearer example-jwt-not-a-real-token"
+    }
+  },
+  "responses": {
+    "201": {
+      "success": true,
+      "data": {
+        "sessionId": "session-demo",
+        "acceptedLabels": [
+          {
+            "model": "coco-ssd",
+            "label": "cup",
+            "minConfidence": 0.6,
+            "vocabularyId": "v-cup"
+          },
+          {
+            "model": "coco-ssd",
+            "label": "bottle",
+            "minConfidence": 0.6,
+            "vocabularyId": "v-bottle"
+          }
+        ]
+      }
+    },
+    "409": {
+      "success": false,
+      "error": {
+        "code": "MISSION_LOCKED",
+        "message": "Prasyarat misi belum selesai.",
+        "details": null
+      }
+    }
+  }
+}

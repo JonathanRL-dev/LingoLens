@@ -1,0 +1,37 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/v1/me/collection",
+    "headers": {
+      "Authorization": "Bearer example-jwt-not-a-real-token"
+    }
+  },
+  "responses": {
+    "200": {
+      "success": true,
+      "data": [
+        {
+          "vocabulary": {
+            "id": "v-cup"
+          },
+          "collected": false,
+          "bestScore": 0
+        },
+        {
+          "vocabulary": {
+            "id": "v-bottle"
+          },
+          "collected": false,
+          "bestScore": 0
+        },
+        {
+          "vocabulary": {
+            "id": "v-book"
+          },
+          "collected": false,
+          "bestScore": 0
+        }
+      ]
+    }
+  }
+}
