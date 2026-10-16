@@ -1,0 +1,289 @@
+// DDL: Rencana Fullstack bagian 6.2 + perubahan Fase 8.
+// Enam tabel tanpa DDL sumber diberi ASUMSI atas izin pengguna.
+// Charset tidak dapat diatur lewat atribut Prisma: MySQL wajib utf8mb4
+// (docker-compose.yml). Verifikasi charset database sebelum migrasi.
+// Semua nilai DateTime harus ditulis UTC oleh aplikasi; DATE aktivitas memakai WIB.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum SentenceKind {
+  choice
+  cloze
+  order
+}
+
+// ASUMSI: tiga jenis relasi ini; nilai enum belum tersedia dari DDL v2.
+enum VocabularyRelationKind {
+  related
+  synonym
+  antonym
+}
+
+// ASUMSI: sumber XP minimum untuk welcome dan tiga komponen sesi.
+enum XpSource {
+  welcome
+  scan
+  practice
+  speak
+}
+
+enum SessionStatus {
+  started
+  scanned
+  completed
+  abandoned
+}
+
+model User {
+  id             String    @id @map("id") @db.Char(36)
+  nickname       String    @map("nickname") @db.VarChar(40)
+  email          String?   @unique @map("email") @db.VarChar(120)
+  passwordHash   String?   @map("password_hash") @db.VarChar(100)
+  isGuest        Boolean   @default(true) @map("is_guest")
+  level          Int       @default(1) @map("level")
+  totalXp        Int       @default(0) @map("total_xp")
+  streakCount    Int       @default(0) @map("streak_count")
+  lastActiveDate DateTime? @map("last_active_date") @db.Date
+  createdAt      DateTime  @default(now()) @map("created_at") @db.DateTime(0)
+  xpEvents       XpEvent[]
+
+  @@map("users")
+}
+
+// ASUMSI: kolom, ukuran, dan unique categories mengikuti bentuk seed:
+// { id, slug, name }; PK eksplisit atau auto-increment untuk kategori baru.
+model Category {
+  id         Int              @id @default(autoincrement()) @map("id")
+  slug       String           @unique @map("slug") @db.VarChar(60)
+  name       String           @map("name") @db.VarChar(80)
+  vocabulary VocabularyItem[]
+
+  @@map("categories")
+}
+
+model VocabularyItem {
+  id              Int                     @id @default(autoincrement()) @map("id")
+  slug            String                  @unique @map("slug") @db.VarChar(60)
+  languageCode    String                  @default("en-US") @map("language_code") @db.Char(5)
+  word            String                  @map("word") @db.VarChar(60)
+  phonetic        String?                 @map("phonetic") @db.VarChar(80)
+  meaningId       String                  @map("meaning_id") @db.VarChar(120)
+  exampleSentence String?                 @map("example_sentence") @db.VarChar(255)
+  imageUrl        String?                 @map("image_url") @db.VarChar(255)
+  categoryId      Int                     @map("category_id")
+  difficulty      Int                     @default(1) @map("difficulty") @db.TinyInt
+  alternates      Json?                   @map("alternates")
+  category        Category                @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  relationsFrom   VocabularyRelation[]    @relation("VocabularyRelationFrom")
+  relationsTo     VocabularyRelation[]    @relation("VocabularyRelationTo")
+  translations    VocabularyTranslation[]
+  sentences       VocabularySentence[]
+  detectionLabels DetectionLabel[]
+
+  @@map("vocabulary_items")
+}
+
+// ASUMSI: PK komposit berarah, dua FK Restrict; tanpa ID tambahan.
+// Nilai kind didefinisikan di atas; tidak ada kolom tambahan.
+model VocabularyRelation {
+  vocabularyId        Int                    @map("vocabulary_id")
+  relatedVocabularyId Int                    @map("related_vocabulary_id")
+  kind                VocabularyRelationKind @map("kind")
+  vocabulary          VocabularyItem         @relation("VocabularyRelationFrom", fields: [vocabularyId], references: [id], onDelete: Restrict)
+  relatedVocabulary   VocabularyItem         @relation("VocabularyRelationTo", fields: [relatedVocabularyId], references: [id], onDelete: Restrict)
+
+  @@id([vocabularyId, relatedVocabularyId, kind])
+  @@map("vocabulary_relations")
+}
+
+// ASUMSI: PK (vocabulary_id, language_code), translation VARCHAR(120),
+// source VARCHAR(40), FK Restrict. romanization/reviewed mengikuti Fase 8.
+model VocabularyTranslation {
+  vocabularyId Int            @map("vocabulary_id")
+  languageCode String         @map("language_code") @db.Char(5)
+  translation  String         @map("translation") @db.VarChar(120)
+  romanization String?        @map("romanization") @db.VarChar(80)
+  source       String         @map("source") @db.VarChar(40)
+  reviewed     Boolean        @default(false) @map("reviewed")
+  vocabulary   VocabularyItem @relation(fields: [vocabularyId], references: [id], onDelete: Restrict)
+
+  @@id([vocabularyId, languageCode])
+  @@map("vocabulary_translations")
+}
+
+model VocabularySentence {
+  id           Int                   @id @default(autoincrement()) @map("id")
+  vocabularyId Int                   @map("vocabulary_id")
+  kind         SentenceKind          @map("kind")
+  sentenceEn   String                @map("sentence_en") @db.VarChar(160)
+  blankWord    String?               @map("blank_word") @db.VarChar(60)
+  wordsJson    Json?                 @map("words_json")
+  difficulty   Int                   @default(1) @map("difficulty") @db.TinyInt
+  source       String                @default("own") @map("source") @db.VarChar(40)
+  sourceRef    String?               @map("source_ref") @db.VarChar(40)
+  author       String?               @map("author") @db.VarChar(80)
+  license      String                @default("own") @map("license") @db.VarChar(40)
+  vocabulary   VocabularyItem        @relation(fields: [vocabularyId], references: [id], onDelete: Restrict)
+  translations SentenceTranslation[]
+
+  @@map("vocabulary_sentences")
+}
+
+model SentenceTranslation {
+  sentenceId   Int                @map("sentence_id")
+  languageCode String             @map("language_code") @db.Char(5)
+  text         String             @map("text") @db.VarChar(255)
+  pinyin       String?            @map("pinyin") @db.VarChar(255)
+  source       String             @map("source") @db.VarChar(40)
+  sourceRef    String?            @map("source_ref") @db.VarChar(40)
+  author       String?            @map("author") @db.VarChar(80)
+  license      String             @map("license") @db.VarChar(40)
+  reviewed     Boolean            @default(false) @map("reviewed")
+  sentence     VocabularySentence @relation(fields: [sentenceId], references: [id], onDelete: Restrict)
+
+  @@id([sentenceId, languageCode])
+  @@map("sentence_translations")
+}
+
+model DetectionLabel {
+  id            Int            @id @default(autoincrement()) @map("id")
+  vocabularyId  Int            @map("vocabulary_id")
+  model         String         @map("model") @db.VarChar(20)
+  label         String         @map("label") @db.VarChar(60)
+  minConfidence Decimal        @default(0.60) @map("min_confidence") @db.Decimal(3, 2)
+  vocabulary    VocabularyItem @relation(fields: [vocabularyId], references: [id], onDelete: Restrict)
+
+  @@unique([vocabularyId, model, label])
+  @@map("detection_labels")
+}
+
+model Mission {
+  id                    Int     @id @default(autoincrement()) @map("id")
+  slug                  String  @unique @map("slug") @db.VarChar(60)
+  titleId               String  @map("title_id") @db.VarChar(160)
+  hintText              String? @map("hint_text") @db.VarChar(160)
+  categoryId            Int     @map("category_id")
+  difficulty            Int     @default(1) @map("difficulty") @db.TinyInt
+  scanXp                Int     @default(50) @map("scan_xp")
+  speakXp               Int     @default(30) @map("speak_xp")
+  orderIndex            Int     @default(0) @map("order_index")
+  prerequisiteMissionId Int?    @map("prerequisite_mission_id")
+  isActive              Boolean @default(true) @map("is_active")
+  exercisePlan          Json    @map("exercise_plan")
+  practiceXp            Int     @default(30) @map("practice_xp")
+
+  @@map("missions")
+}
+
+model MissionTarget {
+  missionId    Int @map("mission_id")
+  vocabularyId Int @map("vocabulary_id")
+
+  @@id([missionId, vocabularyId])
+  @@map("mission_targets")
+}
+
+model MissionSession {
+  id                    String                 @id @map("id") @db.Char(36)
+  userId                String                 @map("user_id") @db.Char(36)
+  missionId             Int                    @map("mission_id")
+  vocabularyId          Int?                   @map("vocabulary_id")
+  status                SessionStatus          @default(started) @map("status")
+  hintCount             Int                    @default(0) @map("hint_count")
+  bestScore             Int?                   @map("best_score")
+  stars                 Int?                   @map("stars") @db.TinyInt
+  xpAwarded             Int                    @default(0) @map("xp_awarded")
+  startedAt             DateTime               @default(now()) @map("started_at") @db.DateTime(0)
+  completedAt           DateTime?              @map("completed_at") @db.DateTime(0)
+  practiceAccuracy      Int?                   @map("practice_accuracy")
+  speakScore            Int?                   @map("speak_score")
+  sessionScore          Int?                   @map("session_score")
+  resultJson            Json?                  @map("result_json")
+  scanAttempts          ScanAttempt[]
+  pronunciationAttempts PronunciationAttempt[]
+  xpEvents              XpEvent[]
+
+  @@index([userId, missionId], map: "idx_user_mission")
+  @@map("mission_sessions")
+}
+
+// ASUMSI: PK auto, FK session Restrict, kolom mengikuti payload API;
+// matched menyimpan hasil cocok; tidak menyimpan gambar. Semua ukuran/default
+// di tabel ini diusulkan karena DDL sumber belum tersedia.
+model ScanAttempt {
+  id         Int            @id @default(autoincrement()) @map("id")
+  sessionId  String         @map("session_id") @db.Char(36)
+  model      String         @map("model") @db.VarChar(20)
+  label      String         @map("label") @db.VarChar(60)
+  confidence Decimal        @map("confidence") @db.Decimal(5, 4)
+  matched    Boolean        @map("matched")
+  latencyMs  Int?           @map("latency_ms")
+  createdAt  DateTime       @default(now()) @map("created_at") @db.DateTime(0)
+  session    MissionSession @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+
+  @@map("scan_attempts")
+}
+
+// ASUMSI: kolom, ukuran, PK/FK selain sentence_id mengikuti payload API.
+// sentence_id nullable (Fase 8), tanpa menambah FK yang tidak disebut sumber.
+model PronunciationAttempt {
+  id         Int            @id @default(autoincrement()) @map("id")
+  sessionId  String         @map("session_id") @db.Char(36)
+  sentenceId Int?           @map("sentence_id")
+  transcript String         @map("transcript") @db.VarChar(255)
+  confidence Decimal?       @map("confidence") @db.Decimal(5, 4)
+  score      Int            @map("score")
+  createdAt  DateTime       @default(now()) @map("created_at") @db.DateTime(0)
+  session    MissionSession @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+
+  @@map("pronunciation_attempts")
+}
+
+model ExerciseAttempt {
+  id         Int          @id @default(autoincrement()) @map("id")
+  sessionId  String       @map("session_id") @db.Char(36)
+  sentenceId Int          @map("sentence_id")
+  kind       SentenceKind @map("kind")
+  attemptNo  Int          @map("attempt_no") @db.TinyInt
+  answer     String       @map("answer") @db.VarChar(255)
+  isCorrect  Boolean      @map("is_correct")
+  value      Decimal      @map("value") @db.Decimal(2, 1)
+  createdAt  DateTime     @default(now()) @map("created_at") @db.DateTime(0)
+
+  @@unique([sessionId, sentenceId, attemptNo], map: "uq_attempt")
+  @@map("exercise_attempts")
+}
+
+model UserVocabulary {
+  userId           String   @map("user_id") @db.Char(36)
+  vocabularyId     Int      @map("vocabulary_id")
+  firstCollectedAt DateTime @default(now()) @map("first_collected_at") @db.DateTime(0)
+  bestScore        Int?     @map("best_score")
+  timesPracticed   Int      @default(1) @map("times_practiced")
+
+  @@id([userId, vocabularyId])
+  @@map("user_vocabulary")
+}
+
+// ASUMSI: id auto, FK user Restrict, source enum, amount INT, timestamp UTC.
+// session_id nullable dan unique(session_id, source) sesuai kebutuhan Fase 9.
+// FK session Restrict diasumsikan; beberapa event welcome NULL diizinkan MySQL.
+model XpEvent {
+  id        Int             @id @default(autoincrement()) @map("id")
+  userId    String          @map("user_id") @db.Char(36)
+  sessionId String?         @map("session_id") @db.Char(36)
+  source    XpSource        @map("source")
+  amount    Int             @map("amount")
+  createdAt DateTime        @default(now()) @map("created_at") @db.DateTime(0)
+  user      User            @relation(fields: [userId], references: [id], onDelete: Restrict)
+  session   MissionSession? @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+
+  @@unique([sessionId, source])
+  @@map("xp_events")
+}
