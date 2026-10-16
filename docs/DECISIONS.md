@@ -289,3 +289,18 @@ Library inferensi serta penyedia tunnel belum ditentukan dalam bahan.
   dipakai jalur Fase 1. Vitest server dan root terpasang pada versi 4.1.12 yang sama.
 - Audit instalasi mencatat tiga temuan high pada rantai Prisma 6 / @prisma/config /
   deepmerge-ts. Saran npm berpindah ke Prisma 7; tidak diterapkan karena batas major 6.
+
+## 2026-10-16 — Middleware server dan usulan INTERNAL_ERROR ke PM
+
+- Usulan PM: INTERNAL_ERROR khusus server untuk HTTP 500, di luar sepuluh kode
+  Fase 1; belum merupakan perubahan shared atau persetujuan kontrak OpenAPI.
+- Shared di main hanya mengekspor APP_NAME. Atas persetujuan pengguna pada prompt
+  ini, tipe ErrorCode sementara diturunkan dari tabel status di lib/errors.ts,
+  tanpa menyalin enum Zod. Impor ErrorCodeSchema menunggu integrasi Fase 1.
+- Batas per IP: global 300/15 menit, ketat 60/menit; OPTIONS dilewati.
+  strictLimiter belum dipasang ke rute, pemasangannya masuk Fase 9.
+- JSON rusak atau di atas 10 kb memakai 400 VALIDATION_ERROR, details.reason.
+- CORS mengizinkan header Authorization, Content-Type, X-Demo-Key.
+- JWT memverifikasi HS256 dan sub string tanpa lookup database.
+- Galat internal dicatat ke Pino; respons tidak memuat stack atau pesan aslinya.
+  Header Authorization dan X-Demo-Key disamarkan pada log request.
