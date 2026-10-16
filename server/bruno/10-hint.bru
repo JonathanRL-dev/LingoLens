@@ -1,0 +1,15 @@
+meta {
+  name: Session Hint
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/sessions/{{sessionId}}/hints
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

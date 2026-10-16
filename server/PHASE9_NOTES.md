@@ -136,3 +136,30 @@ Buka server/bruno dan pilih environment local. Jalankan Guest dahulu agar
 script menyimpan token di environment lokal. Ada enam request tahap 1.
 Vocabulary yang belum dikoleksi memang 404. Di production, tambahkan X-Demo-Key
 secara lokal pada request Reset; jangan commit token/kunci dari environment.
+
+## Fase 9 tahap 2 — Misi dan hint sesi
+
+Empat endpoint misi/hint memakai `mission.routes.ts` → `mission.controller.ts` →
+`missionEndpoints.service.ts`. `mission.service.ts` memuat misi aktif dan sesi
+selesai pengguna dalam dua query; `getMissionStatusesForUser(userId)` dipakai
+ulang untuk daftar, detail, dan pembukaan sesi. Daftar mengambil nama kategori
+sekali untuk semua misi, sehingga tidak melakukan query per misi. `session.service.ts`
+menyediakan `getOwnedSession(userId, sessionId)` dan menyamakan sesi asing/tidak
+ada sebagai 404.
+
+Kode server tambahan tahap ini: `MISSION_NOT_FOUND` (404), `SESSION_NOT_FOUND`
+(404), dan `HINT_LIMIT_REACHED` (409). Kontrak OpenAPI beku belum mencantumkan
+ketiganya; endpoints tetap memakai kode ini sesuai aturan tahap 2. `MISSION_LOCKED`
+tetap 409 seperti kontrak. Sesi `abandoned` untuk hint memakai
+`SESSION_COMPLETED` 409 karena kontrak tidak menyediakan kode status lain.
+
+Asumsi: API mengirim status `open | locked | completed` sesuai aturan tahap 2,
+walaupun contoh OpenAPI lama memakai `available`; `titleId` langsung menjadi
+`title`, integer difficulty dipetakan 1/2/3 menjadi easy/medium/hard, dan hint
+ketiga berupa satu huruf awal target ber-ID terkecil. Kontrak hint hanya memiliki
+`hint` dan `hintCount`, jadi jumlah sisa hint tidak dikirim terpisah.
+`hintText` yang null menghasilkan string kosong untuk tetap memenuhi schema.
+Tidak ada target kata atau teks kata pada daftar misi.
+
+Bruno tahap 2: `07-missions.bru`, `08-mission-detail.bru`,
+`09-start-session.bru`, dan `10-hint.bru`.
