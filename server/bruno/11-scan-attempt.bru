@@ -1,0 +1,24 @@
+meta {
+  name: Scan Attempt
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/sessions/{{sessionId}}/scan-attempts
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "model": "coco-ssd",
+    "label": "cup",
+    "confidence": 0.95,
+    "latencyMs": 45
+  }
+}

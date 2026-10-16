@@ -163,3 +163,32 @@ Tidak ada target kata atau teks kata pada daftar misi.
 
 Bruno tahap 2: `07-missions.bru`, `08-mission-detail.bru`,
 `09-start-session.bru`, dan `10-hint.bru`.
+
+## Fase 9 tahap 3 — Pindai dan latihan
+
+`POST /sessions/:sid/scan-attempts` memeriksa pasangan model/label target dan
+ambang confidence di database, mencatat tiap input, lalu mengubah sesi started
+menjadi scanned secara bersyarat. XP pada `xpAwarded` hanya pratinjau komponen
+scan; tidak ada `xp_events` atau perubahan `users.total_xp` sebelum complete.
+`GET /sessions/:sid/exercises` hanya melayani sesi scanned. `loadSessionExercises(session)`
+di `exercise-session.service.ts` memuat data dan mengembalikan `{ exercises, keys }`;
+controller hanya mengirim latihan beserta state dari `exercise_attempts`.
+`computeXpComponents({ scanXp, practiceXp, speakXp, alreadyCollected })` di
+`reward.service.ts` membungkus faktor dan pembulatan dari `shared.computeXp`.
+
+Asumsi: `exercise_plan` berupa daftar jenis (`choice`, `cloze`) dipetakan ke
+kalimat target dengan jenis sama dan ID terkecil yang belum dipakai. Bentuk
+objek dengan `sentenceId` dan `kind` juga diterima. Latency desimal dibulatkan
+ke bilangan terdekat karena kolom Prisma adalah INT. Terjemahan hint latihan
+memilih `id-ID`, lalu `zh-CN`, atau string kosong. Generator shared belum
+mendukung `order`; plan tersebut menghasilkan 500 generik dan rincian dicatat
+di log. Data mini-seed belum cukup untuk membuat seluruh pengecoh, sehingga tes
+integrasi menambah kosakata fixture khusus.
+
+Kode error mengikuti kontrak beku: sesi completed/abandoned memakai
+`SESSION_COMPLETED`, sesi belum dipindai memakai `SESSION_NOT_SCANNED`, dan ID
+sesi hilang/asing memakai `SESSION_NOT_FOUND` dari ekstensi tahap 2. `xpAwarded`
+adalah angka scan XP saja, mengikuti contoh respons OpenAPI.
+
+Bruno tahap 3: `11-scan-attempt.bru` dan `12-exercises.bru`. Batasan verifikasi
+COCO-SSD dicatat di `docs/cv-model-card.md`.

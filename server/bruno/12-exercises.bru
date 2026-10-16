@@ -1,0 +1,15 @@
+meta {
+  name: Session Exercises
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/sessions/{{sessionId}}/exercises
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
