@@ -20,6 +20,7 @@
     "format": "prettier --write .",
     "api:generate": "tsx scripts/generate-api.ts && openapi-typescript docs/openapi.yaml -o client/src/api/schema.d.ts",
     "api:check": "tsx scripts/generate-api.ts --check && openapi-typescript docs/openapi.yaml -o client/src/api/schema.d.ts --check",
+    "api:types": "openapi-typescript docs/openapi.yaml -o client/src/api/schema.d.ts",
     "api:lint": "redocly lint docs/openapi.yaml"
   },
   "devDependencies": {

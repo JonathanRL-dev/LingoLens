@@ -280,7 +280,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Reset data demo dengan header kunci demo */
+        /**
+         * Reset data demo dengan header kunci demo
+         * @description Tidak menggunakan Bearer JWT. Wajib mengirim kunci demo melalui header X-Demo-Key; bentuk kredensial didokumentasikan sebagai security scheme demoKey (apiKey in header). security: [] menonaktifkan autentikasi Bearer pada operasi ini; header wajib tetap diperiksa.
+         */
         delete: operations["reset"];
         options?: never;
         head?: never;
@@ -435,6 +438,7 @@ export interface components {
             latencyMs: number;
         };
         AnswerRequest: {
+            /** @description choice: ID opsi; cloze: ID chip; order: array ID token berurutan. */
             answer: string | string[];
         };
         PronunciationRequest: {
@@ -602,7 +606,7 @@ export interface components {
             };
             content?: never;
         };
-        /** @description Autentikasi tidak sah */
+        /** @description Token atau kunci demo tidak sah. */
         401: {
             headers: {
                 [name: string]: unknown;
@@ -611,7 +615,7 @@ export interface components {
                 "application/json": components["schemas"]["ErrorResponse"];
             };
         };
-        /** @description Sumber daya tidak ditemukan */
+        /** @description Sumber daya tidak ditemukan. */
         404: {
             headers: {
                 [name: string]: unknown;
@@ -629,7 +633,7 @@ export interface components {
                 "application/json": components["schemas"]["ErrorResponse"];
             };
         };
-        /** @description Validasi masukan gagal */
+        /** @description Masukan tidak lolos validasi. */
         422: {
             headers: {
                 [name: string]: unknown;
@@ -638,7 +642,7 @@ export interface components {
                 "application/json": components["schemas"]["ErrorResponse"];
             };
         };
-        /** @description Terlalu banyak permintaan */
+        /** @description Batas permintaan terlampaui. */
         429: {
             headers: {
                 [name: string]: unknown;
@@ -740,7 +744,15 @@ export interface operations {
                     "application/json": components["schemas"]["GuestResponse"];
                 };
             };
-            422: components["responses"]["422"];
+            /** @description VALIDATION_ERROR: Nickname kosong atau ditolak kebijakan kata kasar. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             429: components["responses"]["429"];
             500: components["responses"]["500"];
         };
@@ -826,7 +838,15 @@ export interface operations {
                 };
             };
             401: components["responses"]["401"];
-            422: components["responses"]["422"];
+            /** @description VALIDATION_ERROR: Nickname atau avatarKey tidak sah. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             429: components["responses"]["429"];
             500: components["responses"]["500"];
         };
@@ -1028,7 +1048,15 @@ export interface operations {
             };
             401: components["responses"]["401"];
             404: components["responses"]["404"];
-            409: components["responses"]["409"];
+            /** @description MISSION_LOCKED: Prasyarat misi belum selesai. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             429: components["responses"]["429"];
             500: components["responses"]["500"];
         };
@@ -1065,7 +1093,15 @@ export interface operations {
             };
             401: components["responses"]["401"];
             404: components["responses"]["404"];
-            409: components["responses"]["409"];
+            /** @description SESSION_COMPLETED: Sesi telah selesai; petunjuk tidak dapat ditambahkan. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             429: components["responses"]["429"];
             500: components["responses"]["500"];
         };
@@ -1129,7 +1165,15 @@ export interface operations {
             };
             401: components["responses"]["401"];
             404: components["responses"]["404"];
-            409: components["responses"]["409"];
+            /** @description SESSION_COMPLETED: Sesi telah selesai; hasil pindai tidak dapat ditambahkan. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             422: components["responses"]["422"];
             429: components["responses"]["429"];
             500: components["responses"]["500"];
@@ -1258,7 +1302,15 @@ export interface operations {
             };
             401: components["responses"]["401"];
             404: components["responses"]["404"];
-            409: components["responses"]["409"];
+            /** @description SESSION_NOT_SCANNED: Pindai belum berhasil. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             429: components["responses"]["429"];
             500: components["responses"]["500"];
         };
@@ -1286,7 +1338,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Berhasil */
+            /** @description Hasil penilaian jawaban. Setelah salah pada percobaan pertama, hint menyebut huruf pertama arti (choice), huruf pertama kata (cloze), atau kata pertama kalimat (order). correctAnswer hanya boleh diberikan setelah jawaban gagal dan kesempatan habis; jawaban yang sudah benar tidak memberi poin lagi. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -1307,8 +1359,24 @@ export interface operations {
                 };
             };
             401: components["responses"]["401"];
-            404: components["responses"]["404"];
-            409: components["responses"]["409"];
+            /** @description EXERCISE_NOT_FOUND: Soal tidak ditemukan pada sesi ini. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ATTEMPTS_EXHAUSTED: Kesempatan menjawab soal telah habis. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             422: components["responses"]["422"];
             429: components["responses"]["429"];
             500: components["responses"]["500"];
@@ -1360,7 +1428,15 @@ export interface operations {
             };
             401: components["responses"]["401"];
             404: components["responses"]["404"];
-            409: components["responses"]["409"];
+            /** @description SESSION_COMPLETED: Sesi telah selesai; percobaan ucapan tidak dapat ditambahkan. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             422: components["responses"]["422"];
             429: components["responses"]["429"];
             500: components["responses"]["500"];
@@ -1436,7 +1512,15 @@ export interface operations {
             };
             401: components["responses"]["401"];
             404: components["responses"]["404"];
-            409: components["responses"]["409"];
+            /** @description PRACTICE_INCOMPLETE: Masih ada soal belum selesai dan skippedPractice bukan true. SESSION_NOT_SCANNED: Sesi belum memiliki pindai yang berhasil. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             422: components["responses"]["422"];
             429: components["responses"]["429"];
             500: components["responses"]["500"];
@@ -1493,7 +1577,7 @@ export interface operations {
             query?: never;
             header: {
                 /** @description Kunci demo; tidak menggunakan JWT */
-                "X-Demo-Reset-Key": string;
+                "X-Demo-Key": string;
             };
             path?: never;
             cookie?: never;

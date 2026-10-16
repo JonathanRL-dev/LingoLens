@@ -46,3 +46,63 @@ Poin jawaban, skor sesi, dan komponen XP tetap memakai Math.round sesuai spesifi
 Status: menunggu tinjauan serta tanda tangan PM.
 PM perlu memeriksa skema, contoh, asumsi di atas, dan pemetaan kode error sebelum
 mencatat nama serta tanggal persetujuan di sini. Tidak ada tanda tangan yang direkayasa.
+
+## G0 — Pembekuan kontrak API Fase 1
+
+Tanggal pemeriksaan teknis: 16 Oktober 2026 (Asia/Jakarta).
+Status: entri pembekuan disiapkan, menunggu tinjauan dan tanda tangan PM.
+Hasil pemeriksaan teknis ini tidak menyatakan seluruh ketidakcocokan telah selesai.
+
+Hal yang diajukan untuk dibekukan:
+
+- Basis /api/v1, 16 operasi beserta operationId, request, respons, dan status HTTP
+  pada docs/openapi.yaml; Bearer JWT serta header reset demo X-Demo-Key.
+- Amplop sukses/error, sepuluh kode error, dan batas pembukaan kunci jawaban.
+- Bentuk Exercise choice/cloze/order, Vocabulary, Mission, dan komponen bersama.
+- Skema Zod di shared/src/schemas, 16 contoh JSON per operationId, dan skenario M4.
+- Konstanta serta fungsi murni skor, XP, level kumulatif, dan tanggal streak WIB.
+- Tipe frontend hasil OpenAPI di client/src/api/schema.d.ts.
+
+ASUMSI jalur: workspace frontend Fase 0 bernama client, bukan frontend.
+api:types menggunakan jalur tipe yang sudah ada agar tidak membuat salinan kedua.
+
+Verifikasi:
+
+- npm run api:lint: tanpa error; tiga peringatan (lisensi API belum ditentukan,
+  respons komponen 409 tidak digunakan, security scheme demoKey tidak digunakan).
+- npm run api:types: berhasil; 16 referensi operations pada tipe hasil generator.
+- Audit silang: 16 operationId memiliki skema Zod berpadanan; sepuluh kode error
+  identik. Tidak ada bidang kunci jawaban pada Exercise, Vocabulary, Mission,
+  atau contoh exercises/vocabulary. correctAnswer hanya pada respons answers.
+- npm run typecheck, npm run lint, npm run test, dan npm run test -w shared:
+  lulus; 185 uji. Lingkungan pemeriksaan memakai Node 24.20.0; Node 22 sesuai
+  .nvmrc belum diverifikasi pada pemeriksaan ini.
+- Tiga belas konstanta Fase 1 sesuai nilai spesifikasi; uji batas level, tengah
+  malam WIB, bobot/pita, ucapan, susun kata token ganda, serta XP lulus.
+- Angka contoh dihitung manual sesuai M4 dan diuji konsistensinya; contoh tidak
+  mengimpor scoring.ts. Tidak ada dependensi yang ditambahkan pada M5.
+
+Ketidakcocokan yang ditemukan dan tidak diperbaiki dalam M5:
+
+1. GuestRequest dan UpdateMeRequest: Zod melakukan trim dan membatasi nickname
+   1–20 karakter sesuai M3. OpenAPI belum memiliki maxLength 20 dan tidak
+   menjelaskan normalisasi trim. Bentuk 34 komponen lainnya selaras setelah
+   perbedaan representasi union dan metadata dokumentasi dinormalisasi.
+2. Sumber generator scripts/generate-api.ts dan scripts/api-contract.ts masih
+   memakai format/nama contoh lama dan belum mencerminkan penyesuaian M2–M4.
+   npm run api:check gagal pada docs/examples/Health.json. Jangan menjalankan
+   api:generate untuk menyinkronkan sebelum sumber generator diperbaiki lewat
+   tugas yang disetujui PM; perintah itu dapat menimpa kontrak dan contoh baru.
+   Skrip api:types hanya membaca OpenAPI dan aman untuk regenerasi tipe saja.
+3. Asumsi pada bagian lama dokumen ini dan PROJECT_CONTEXT.md masih menyebut
+   X-Demo-Reset-Key serta nicknameWithPolicy. Kontrak M2 dan skema M3 kini
+   memakai X-Demo-Key; aturan kata kasar berada di server, tanpa helper tersebut
+   di shared. Catatan lama dipertahankan sesuai batas perubahan M5.
+
+Perubahan setelah entri ini atas kontrak, skema, contoh, atau rumus yang diajukan
+untuk dibekukan hanya melalui persetujuan PM dan dicatat di DECISIONS.md.
+PM perlu meninjau ketidakcocokan di atas sebelum menetapkan pembekuan efektif.
+
+Nama PM:
+Tanggal persetujuan:
+Tanda tangan PM:
