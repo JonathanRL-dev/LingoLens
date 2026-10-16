@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@lingolens/shared": "*",
+    "@emotion/react": "^11.13.3",
     "@radix-ui/react-icons": "^1.3.2",
     "@tensorflow-models/coco-ssd": "^2.2.3",
     "@tensorflow/tfjs": "^4.22.0",

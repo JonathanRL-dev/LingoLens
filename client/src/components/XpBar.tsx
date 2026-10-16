@@ -4,10 +4,10 @@ export interface XpBarProps {
   label?: string;
 }
 
-export function XpBar({ value, max, label = "XP" }: XpBarProps) {
+export function XpBar({ value, max, label = 'XP' }: XpBarProps) {
   const safeMax = Math.max(1, max);
   const safeValue = Math.max(0, Math.min(value, safeMax));
-  const percentage = safeValue / safeMax * 100;
+  const percentage = (safeValue / safeMax) * 100;
 
   return (
     <div className="w-full font-body text-ink">
@@ -20,10 +20,10 @@ export function XpBar({ value, max, label = "XP" }: XpBarProps) {
         aria-label={label}
         aria-valuemin={0}
         aria-valuemax={safeMax}
-        aria-valuenow={safeValue}>
-
+        aria-valuenow={safeValue}
+      >
         <div className="h-full bg-accent" style={{ width: `${percentage}%` }} />
       </div>
-    </div>);
-
+    </div>
+  );
 }

@@ -1,5 +1,15 @@
-import { useEffect, useState, type RefObject } from "react";
-import { AppleIcon, BookIcon, CameraIcon, CoffeeIcon, LightbulbIcon, PencilIcon, PhoneIcon, SparklesIcon, type LucideIcon } from "lucide-react";
+import { useEffect, useState, type RefObject } from 'react';
+import {
+  AppleIcon,
+  BookIcon,
+  CameraIcon,
+  CoffeeIcon,
+  LightbulbIcon,
+  PencilIcon,
+  PhoneIcon,
+  SparklesIcon,
+  type LucideIcon,
+} from 'lucide-react';
 
 export interface SpawnedSticker {
   id: number;
@@ -16,12 +26,22 @@ interface Zone {
   weight: number;
 }
 
-const ICONS: LucideIcon[] = [CoffeeIcon, BookIcon, PhoneIcon, CameraIcon, SparklesIcon, LightbulbIcon, AppleIcon, PencilIcon];
-const COLOR_CLASSES = ["bg-orange", "bg-lens", "bg-accent"];
+const ICONS: LucideIcon[] = [
+  CoffeeIcon,
+  BookIcon,
+  PhoneIcon,
+  CameraIcon,
+  SparklesIcon,
+  LightbulbIcon,
+  AppleIcon,
+  PencilIcon,
+];
+const COLOR_CLASSES = ['bg-orange', 'bg-lens', 'bg-accent'];
 // Fractions of the screen height. The top band sits above the mascot + board; the bottom band sits below the button.
 const ZONES: Zone[] = [
-{ top: [0.03, 0.19], weight: 0.72 },
-{ top: [0.75, 0.86], weight: 0.28 }];
+  { top: [0.03, 0.19], weight: 0.72 },
+  { top: [0.75, 0.86], weight: 0.28 },
+];
 
 const MAX_ACTIVE = 4;
 const MIN_ACTIVE = 2;
@@ -58,10 +78,13 @@ export function useStickerSpawner(containerRef: RefObject<HTMLElement | null>, e
       nextId += 1;
       active = [...active, sticker];
       setStickers(active);
-      schedule(() => {
-        active = active.filter((item) => item.id !== sticker.id);
-        setStickers(active);
-      }, ENTRY_MS + randomBetween(1500, 3000));
+      schedule(
+        () => {
+          active = active.filter((item) => item.id !== sticker.id);
+          setStickers(active);
+        },
+        ENTRY_MS + randomBetween(1500, 3000),
+      );
     };
 
     const loop = () => {
@@ -80,16 +103,23 @@ export function useStickerSpawner(containerRef: RefObject<HTMLElement | null>, e
   return stickers;
 }
 
-function createSticker(id: number, width: number, height: number, active: SpawnedSticker[]): SpawnedSticker | null {
+function createSticker(
+  id: number,
+  width: number,
+  height: number,
+  active: SpawnedSticker[],
+): SpawnedSticker | null {
   for (let attempt = 0; attempt < 12; attempt += 1) {
-    const upperZone = ZONES[0]!;
-    const lowerZone = ZONES[1]!;
-    const zone = Math.random() < upperZone.weight ? upperZone : lowerZone;
+    const zone = Math.random() < ZONES[0]!.weight ? ZONES[0]! : ZONES[1]!;
     const size = Math.round(randomBetween(44, 72));
     const x = randomBetween(EDGE_PADDING, Math.max(EDGE_PADDING, width - size - EDGE_PADDING));
     const y = randomBetween(zone.top[0] * height, zone.top[1] * height);
-    const overlaps = active.some((other) =>
-    x < other.x + other.size + GAP && x + size + GAP > other.x && y < other.y + other.size + GAP && y + size + GAP > other.y
+    const overlaps = active.some(
+      (other) =>
+        x < other.x + other.size + GAP &&
+        x + size + GAP > other.x &&
+        y < other.y + other.size + GAP &&
+        y + size + GAP > other.y,
     );
     if (!overlaps) {
       return {
@@ -99,7 +129,7 @@ function createSticker(id: number, width: number, height: number, active: Spawne
         size,
         x,
         y,
-        rotate: randomBetween(-3, 3)
+        rotate: randomBetween(-3, 3),
       };
     }
   }
