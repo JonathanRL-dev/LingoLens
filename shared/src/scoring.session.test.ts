@@ -1,3 +1,4 @@
+import { levelInfo } from './levels';
 import { describe, expect, it } from 'vitest';
 import {
   questionGrade,
@@ -155,4 +156,41 @@ describe('practiceAccuracy', () => {
   ])('akurasi untuk nilai %s', (grade, expected) => {
     expect(practiceAccuracy([grade])).toBe(expected);
   });
+});
+
+describe('pembulatan akurasi sesuai scoring.md', () => {
+  it('membulatkan akurasi sebelum dipakai untuk skor sesi', () => {
+    expect(practiceAccuracy([1, 1, 0.5])).toBe(83);
+    expect(practiceAccuracy([1, 0, 0])).toBe(33);
+    expect(sessionScore(practiceAccuracy([1, 0, 0]), 0)).toBe(18);
+  });
+});
+
+describe('contoh akun baru pada scoring.md', () => {
+  it.each([
+    ['A', 100, 100, 100, 3, 110, 2, 30],
+    ['B', 83, 60, 73, 2, 105, 2, 25],
+    ['C', 0, 70, 32, 1, 80, 2, 0],
+    ['D', 100, 0, 55, 2, 80, 2, 0],
+    ['E', 83, 0, 46, 1, 75, 1, 95],
+    ['F', 0, 0, 0, 1, 50, 1, 70],
+  ] as const)(
+    'skenario %s',
+    (_name, accuracy, speech, expectedScore, stars, xp, level, inLevel) => {
+      const result = sessionScore(accuracy, speech);
+      const awarded = computeXp({
+        practiceAccuracy: accuracy,
+        speakPassed: speech >= 50,
+        alreadyCollected: false,
+      });
+      expect(result).toBe(expectedScore);
+      expect(starsFromScore(result)).toBe(stars);
+      expect(awarded.total).toBe(xp);
+      expect(levelInfo(20 + awarded.total)).toEqual({
+        level,
+        xpInLevel: inLevel,
+        xpForNextLevel: 100 * level,
+      });
+    },
+  );
 });

@@ -1,0 +1,14 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session-demo",
+    "acceptedLabels": [
+      {
+        "model": "coco-ssd",
+        "label": "cup",
+        "minConfidence": 0.6,
+        "vocabularyId": "v-cup"
+      }
+    ]
+  }
+}

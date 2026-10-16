@@ -78,3 +78,18 @@ Hot reload yang belum berjalan lewat tunnel bukan blocker Fase 0; catat nanti di
 
 Baca [AGENTS.md](AGENTS.md) dan [PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md) setelah P0-C digabung.
 Gunakan cabang `feat/p<fase>-<nama>`; tidak ada push langsung ke `main` setelah G0.
+
+## Kontrak dan kode bersama Fase 1
+
+Sumber skema runtime ada di shared/src/schemas/index.ts; definisi endpoint dan
+contoh ada di scripts/api-contract.ts. Setelah mengubah sumber tersebut:
+
+- npm run api:generate — menghasilkan OpenAPI, contoh JSON, dan tipe frontend.
+- npm run api:check — memeriksa artefak tetap sinkron tanpa menulis ulang.
+- npm run api:lint — memvalidasi docs/openapi.yaml.
+- npm run typecheck, npm run lint, npm run test — memverifikasi kode dan uji.
+
+Tipe frontend tersedia di client/src/api/schema.d.ts. Rumus dibaca di
+docs/scoring.md; asumsi dan status tinjauan PM ada di docs/DECISIONS.md.
+Fase ini belum mengimplementasikan handler API atau database.
+Gunakan Node 22 sesuai .nvmrc (Redocly memerlukan minimal 22.12 atau 20.19).

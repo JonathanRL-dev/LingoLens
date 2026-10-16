@@ -1,0 +1,292 @@
+import type { z } from 'zod';
+import {
+  CompleteRequest,
+  GuestRequest,
+  UpdateMeRequest,
+  ScanRequest,
+  AnswerRequest,
+  PronunciationRequest,
+} from '../shared/src/schemas/index';
+
+const state = { attemptsUsed: 0, solved: false, exhausted: false };
+const vocabulary = {
+  id: 'v-cup',
+  word: 'cup',
+  phonetic: '/kʌp/',
+  meaning: 'cangkir',
+  imageUrl: '/images/cup.svg',
+  category: 'Minum dan makan',
+  translations: [],
+  exampleSentence: { id: 's-cup-choice', text: 'This is my red cup.' },
+  related: [],
+};
+const user = {
+  id: 'u-demo',
+  nickname: 'Bintang',
+  level: 1,
+  totalXp: 20,
+  xpInLevel: 20,
+  xpForNextLevel: 100,
+  streak: 0,
+  collectedCount: 0,
+};
+const mission = {
+  id: 'm1',
+  slug: 'untuk-minum',
+  title: 'Untuk minum',
+  hint: 'Cari wadah minuman',
+  category: 'Minum dan makan',
+  difficulty: 'easy',
+  rewardXp: 110,
+  status: 'available',
+  bestStars: 0,
+  exercisePlan: ['choice', 'cloze', 'order'],
+};
+const acceptedLabels = [
+  { model: 'coco-ssd', label: 'cup', minConfidence: 0.6, vocabularyId: 'v-cup' },
+];
+const exercises = [
+  {
+    id: 's-cup-choice',
+    kind: 'choice',
+    index: 0,
+    state,
+    word: 'cup',
+    imageUrl: '/images/cup.svg',
+    contextSentence: 'This is my red cup.',
+    options: [
+      { id: 'o1', text: 'cangkir' },
+      { id: 'o2', text: 'buku' },
+      { id: 'o3', text: 'kursi' },
+      { id: 'o4', text: 'pisang' },
+    ],
+  },
+  {
+    id: 's-cup-cloze',
+    kind: 'cloze',
+    index: 1,
+    state,
+    parts: ['The ', ' has a handle.'],
+    chips: [
+      { id: 'c1', text: 'cup' },
+      { id: 'c2', text: 'book' },
+      { id: 'c3', text: 'banana' },
+    ],
+    hintTranslation: 'Cangkir itu memiliki pegangan.',
+    speakText: 'The blank has a handle.',
+  },
+  {
+    id: 's-cup-order',
+    kind: 'order',
+    index: 2,
+    state,
+    tokens: [
+      { id: 't3', text: 'cup' },
+      { id: 't1', text: 'I' },
+      { id: 't4', text: 'here' },
+      { id: 't2', text: 'put' },
+    ],
+    hintTranslation: 'Saya meletakkan cangkir di sini.',
+    endPunctuation: '.',
+  },
+];
+export interface Endpoint {
+  method: 'get' | 'post' | 'patch' | 'delete';
+  path: string;
+  name: string;
+  summary: string;
+  status: number;
+  data?: unknown;
+  request?: { name: string; schema: z.ZodType; example: unknown };
+  public?: boolean;
+  errors?: number[];
+}
+export const endpoints: Endpoint[] = [
+  {
+    method: 'get',
+    path: '/health',
+    name: 'Health',
+    summary: 'Periksa kesehatan layanan',
+    status: 200,
+    data: { status: 'ok', db: 'ok' },
+    public: true,
+  },
+  {
+    method: 'post',
+    path: '/auth/guest',
+    name: 'Guest',
+    summary: 'Buat akun tamu dengan 20 XP awal',
+    status: 201,
+    data: { token: 'example-jwt-not-a-real-token', user },
+    request: { name: 'GuestRequest', schema: GuestRequest, example: { nickname: 'Bintang' } },
+    public: true,
+    errors: [422],
+  },
+  {
+    method: 'get',
+    path: '/me',
+    name: 'Me',
+    summary: 'Baca profil dan kemajuan',
+    status: 200,
+    data: user,
+  },
+  {
+    method: 'patch',
+    path: '/me',
+    name: 'UpdateMe',
+    summary: 'Perbarui profil',
+    status: 200,
+    data: user,
+    request: { name: 'UpdateMeRequest', schema: UpdateMeRequest, example: { nickname: 'Bintang' } },
+    errors: [422],
+  },
+  {
+    method: 'get',
+    path: '/me/collection',
+    name: 'Collection',
+    summary: 'Baca koleksi tanpa membuka kartu terkunci',
+    status: 200,
+    data: [
+      { vocabulary, collected: true, bestScore: 100 },
+      { vocabulary: { id: 'v-book' }, collected: false, bestScore: 0 },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/missions',
+    name: 'Missions',
+    summary: 'Daftar misi',
+    status: 200,
+    data: [mission],
+  },
+  {
+    method: 'get',
+    path: '/missions/{id}',
+    name: 'MissionDetail',
+    summary: 'Baca rincian misi dan label yang diterima',
+    status: 200,
+    data: { ...mission, acceptedLabels, targetCount: 1 },
+    errors: [404],
+  },
+  {
+    method: 'post',
+    path: '/missions/{id}/sessions',
+    name: 'StartSession',
+    summary: 'Mulai sesi misi',
+    status: 201,
+    data: { sessionId: 'session-demo', acceptedLabels },
+    errors: [404, 409],
+  },
+  {
+    method: 'post',
+    path: '/sessions/{sid}/hints',
+    name: 'Hint',
+    summary: 'Minta petunjuk sesi',
+    status: 200,
+    data: { hint: 'Cari cangkir di dekatmu', hintCount: 1 },
+    errors: [404, 409],
+  },
+  {
+    method: 'post',
+    path: '/sessions/{sid}/scan-attempts',
+    name: 'Scan',
+    summary: 'Catat hasil deteksi; XP baru dikreditkan saat complete',
+    status: 200,
+    data: { matched: true, alreadyCollected: false, vocabulary, xpAwarded: 50 },
+    request: {
+      name: 'ScanRequest',
+      schema: ScanRequest,
+      example: { label: 'cup', confidence: 0.95, model: 'coco-ssd', latencyMs: 45 },
+    },
+    errors: [404, 409, 422],
+  },
+  {
+    method: 'get',
+    path: '/sessions/{sid}/exercises',
+    name: 'Exercises',
+    summary: 'Baca latihan deterministik beserta state tanpa kunci',
+    status: 200,
+    data: { exercises },
+    errors: [404, 409],
+  },
+  {
+    method: 'post',
+    path: '/sessions/{sid}/exercises/{eid}/answers',
+    name: 'Answer',
+    summary: 'Nilai jawaban; kunci hanya saat gagal dan kesempatan habis',
+    status: 200,
+    data: { correct: true, attemptNo: 1, attemptsLeft: 1, pointsAwarded: 10 },
+    request: { name: 'AnswerRequest', schema: AnswerRequest, example: { answer: 'o1' } },
+    errors: [404, 409, 422],
+  },
+  {
+    method: 'post',
+    path: '/sessions/{sid}/pronunciation-attempts',
+    name: 'Pronunciation',
+    summary: 'Nilai kecocokan transkrip; gunakan skor terbaik dalam sesi',
+    status: 200,
+    data: {
+      score: 100,
+      level: 'good',
+      passed: true,
+      feedback: 'Kalimat berhasil dikenali',
+      targetWordHeard: true,
+    },
+    request: {
+      name: 'PronunciationRequest',
+      schema: PronunciationRequest,
+      example: {
+        heardText: 'This is my red cup.',
+        recognitionConfidence: 1,
+        sentenceId: 's-cup-choice',
+      },
+    },
+    errors: [404, 409, 422],
+  },
+  {
+    method: 'post',
+    path: '/sessions/{sid}/complete',
+    name: 'Complete',
+    summary: 'Selesaikan sesi dan kreditkan XP secara idempoten',
+    status: 200,
+    data: {
+      stars: 3,
+      sessionScore: 100,
+      practiceAccuracy: 100,
+      speakScore: 100,
+      xpBreakdown: { scanXp: 50, practiceXp: 30, speakXp: 30 },
+      totalXpAwarded: 110,
+      levelUp: true,
+      newLevel: 2,
+      xpInLevel: 30,
+      xpForNextLevel: 200,
+      collectedWord: vocabulary,
+      alreadyCollected: false,
+      nextMission: null,
+    },
+    request: {
+      name: 'CompleteRequest',
+      schema: CompleteRequest,
+      example: { skippedPractice: false, skippedSpeak: false },
+    },
+    errors: [404, 409, 422],
+  },
+  {
+    method: 'get',
+    path: '/vocabulary/{id}',
+    name: 'Vocabulary',
+    summary: 'Baca kartu dan hanya kalimat choice',
+    status: 200,
+    data: vocabulary,
+    errors: [404],
+  },
+  {
+    method: 'delete',
+    path: '/dev/reset',
+    name: 'Reset',
+    summary: 'Reset data demo dengan header kunci demo',
+    status: 204,
+    public: true,
+    errors: [401],
+  },
+];

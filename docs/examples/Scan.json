@@ -1,0 +1,22 @@
+{
+  "success": true,
+  "data": {
+    "matched": true,
+    "alreadyCollected": false,
+    "vocabulary": {
+      "id": "v-cup",
+      "word": "cup",
+      "phonetic": "/kʌp/",
+      "meaning": "cangkir",
+      "imageUrl": "/images/cup.svg",
+      "category": "Minum dan makan",
+      "translations": [],
+      "exampleSentence": {
+        "id": "s-cup-choice",
+        "text": "This is my red cup."
+      },
+      "related": []
+    },
+    "xpAwarded": 50
+  }
+}

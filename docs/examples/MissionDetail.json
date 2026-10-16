@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "data": {
+    "id": "m1",
+    "slug": "untuk-minum",
+    "title": "Untuk minum",
+    "hint": "Cari wadah minuman",
+    "category": "Minum dan makan",
+    "difficulty": "easy",
+    "rewardXp": 110,
+    "status": "available",
+    "bestStars": 0,
+    "exercisePlan": [
+      "choice",
+      "cloze",
+      "order"
+    ],
+    "acceptedLabels": [
+      {
+        "model": "coco-ssd",
+        "label": "cup",
+        "minConfidence": 0.6,
+        "vocabularyId": "v-cup"
+      }
+    ],
+    "targetCount": 1
+  }
+}

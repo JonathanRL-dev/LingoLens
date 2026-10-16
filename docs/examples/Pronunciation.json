@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "data": {
+    "score": 100,
+    "level": "good",
+    "passed": true,
+    "feedback": "Kalimat berhasil dikenali",
+    "targetWordHeard": true
+  }
+}

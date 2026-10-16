@@ -1,29 +1,45 @@
 # Konteks proyek LingoLens
 
-## Ringkasan dari dokumen sumber
+LingoLens adalah aplikasi belajar kosakata Inggris lewat kamera untuk anak.
+Inferensi benda berjalan di browser; gambar tidak dikirim ke server. Monorepo npm
+memuat client (React/Vite), server, dan shared (TypeScript strict).
 
-TODO(user): isi dari dokumen sumber
+Alur: akun tamu → misi → sesi → pindai → kartu kosakata → latihan → ucap kalimat
+→ hasil, XP, dan level. Tingkat A memakai choice dan cloze; order termasuk Tingkat B.
+Mandarin sederhana (zh-CN, dengan pinyin) hanya terjemahan pendukung, bukan latihan.
 
-## Kondisi repo yang terverifikasi
+## Sumber dan batas fase
 
-- Monorepo bernama `lingolens`, dengan workspace `@lingolens/client`, `@lingolens/server`, dan `@lingolens/shared`.
-- Client React merender judul dari `APP_NAME`; server HTTP menyediakan `GET /health`.
-- Shared mengekspor `APP_NAME = 'LingoLens'`; ada satu uji konstanta tersebut.
-- `client/public/models/` tersedia sebagai direktori placeholder, tanpa model terpasang.
-- `docs/cv-model-card.md` belum tersedia; HTTPS tunnel untuk HP belum dikonfigurasi.
-- P0-B berada di `feat/p0-docker-env`, belum di `main` yang menjadi dasar branch dokumen ini.
-- Contoh environment P0-B mengaktifkan `VITE_ENABLE_COLLECTION` dan `VITE_ENABLE_PROFILE`; flag tidak membuktikan fitur sudah diimplementasikan.
+Spesifikasi: “LingoLens — Rencana Eksekusi Vibecode per Fase”, 13 Oktober 2026,
+bagian Fase 1 dan keputusan D-1–D-9; detail rumus dari lampiran scoring.md.
+Fase 1 menyediakan kontrak 16 operasi, skema Zod, contoh respons, tipe frontend,
+konstanta, serta fungsi murni skor dan level. Implementasi endpoint dan database
+berada di fase berikutnya; keberadaan kontrak tidak berarti backend sudah tersedia.
 
-## Tumpukan teknologi
+## Kontrak dan kode bersama
 
-- npm workspaces untuk client, server, dan shared.
-- TypeScript strict dengan `noUncheckedIndexedAccess`.
-- Vite untuk client React.
-- MySQL 8 dengan charset `utf8mb4` dan collation `utf8mb4_unicode_ci` pada konfigurasi P0-B.
-- Vitest untuk pengujian.
+- Basis API /api/v1, JSON, Bearer JWT; reset demo memakai header kunci.
+- Amplop sukses { success: true, data }; gagal { success: false, error: { code, message, details } }.
+- Skema runtime: shared/src/schemas/index.ts. Definisi endpoint dan contoh:
+  scripts/api-contract.ts. npm run api:generate menghasilkan docs/openapi.yaml,
+  docs/examples/*.json, dan client/src/api/schema.d.ts.
+- npm run api:check mendeteksi artefak tidak sinkron; npm run api:lint memvalidasi OpenAPI.
+- Fungsi skor, XP, dan level hanya di shared. Dokumen rumus: docs/scoring.md.
+- Kunci tidak ada di Exercise, Vocabulary, atau Mission. Respons jawaban boleh
+  memuat correctAnswer hanya setelah gagal dan kesempatan habis.
+- Kartu hanya membuka kalimat choice; cloze/order tetap terpisah.
+- Scan menampilkan XP yang akan diterima. Kredit XP hanya pada complete yang idempoten.
+- Welcome 20 XP; misi sempurna 110 XP menghasilkan total 130: level 2, 30 dari 200.
+- Akurasi latihan dibulatkan sesuai scoring.md; bobot sesi 0,55 latihan / 0,45 ucapan.
+- Level kumulatif di 100, 300, 600; streak memakai tanggal Asia/Jakarta.
 
-## Keputusan dan aturan kerja
+## Asumsi yang masih perlu ditinjau
 
-Lihat [catatan keputusan](DECISIONS.md) dan [panduan assistant](../AGENTS.md).
-D-1 sampai D-9 menunggu dokumen sumber; D-10 sampai D-12 mencatat arahan prompt,
-referensi repo, dan bagian yang belum dapat dijelaskan dari bahan yang tersedia.
+ID string, index latihan mulai 0; category, difficulty, status berupa teks tanpa enum.
+translations, related, dan exampleSentence adalah objek minimal sampai data Fase 2
+dirinci. Entri koleksi terkunci hanya membuka vocabulary.id. Header reset diasumsikan
+X-Demo-Reset-Key. Kebijakan nickname kasar dipasok server, bukan daftar rekaan.
+Enum sepuluh kode error tidak mencantumkan error internal; pemetaan body 500 perlu
+diputuskan PM. Lihat komentar ASUMSI pada kontrak dan sumber skema.
+
+Pembekuan G0 belum ditandatangani. Lihat docs/DECISIONS.md.
