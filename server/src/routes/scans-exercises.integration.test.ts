@@ -244,7 +244,7 @@ describe.skipIf(!dbEnabled)('scan and exercise endpoints - MySQL', () => {
       .post(`/api/v1/sessions/${active.id}/exercises/${exercise.id}/answers`)
       .auth(guest.token, { type: 'bearer' })
       .send({ answer: ['unknown-token'] });
-    expect(invalid.status).toBe(400);
+    expect(invalid.status).toBe(422);
     expect(invalid.body.error.code).toBe('VALIDATION_ERROR');
 
     const answer = await request(app)

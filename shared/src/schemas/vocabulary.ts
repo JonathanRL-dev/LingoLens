@@ -26,8 +26,8 @@ export const collectionItemSchema = z.discriminatedUnion('collected', [
     .strict(),
   z
     .object({
-      // ASUMSI OpenAPI: kartu terkunci hanya membuka ID.
-      vocabulary: z.object({ id: idSchema }).strict(),
+      // Kartu terkunci hanya membuka ID dan gambar siluet sesuai kontrak OpenAPI.
+      vocabulary: z.object({ id: idSchema, imageUrl: z.string() }).strict(),
       collected: z.literal(false),
       bestScore: scoreSchema,
     })

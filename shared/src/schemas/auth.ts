@@ -13,7 +13,7 @@ export const userSchema = z
     xpForNextLevel: countSchema,
     streak: countSchema,
     collectedCount: countSchema,
-    avatarKey: z.string().optional(),
+    avatarKey: z.string().max(80).nullable().optional(),
   })
   .strict();
 export const guestRequestSchema = z.object({ nickname: nicknameSchema }).strict();
@@ -22,7 +22,7 @@ export const meDataSchema = userSchema;
 export const updateMeRequestSchema = z
   .object({
     nickname: nicknameSchema.optional(),
-    avatarKey: z.string().optional(),
+    avatarKey: z.string().max(80).nullable().optional(),
   })
   .strict();
 export const updateMeDataSchema = userSchema;

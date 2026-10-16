@@ -52,7 +52,7 @@ describe.skipIf(!dbEnabled)('GET /vocabulary/:id - MySQL', () => {
     await seedMinimal(prisma);
     expect(await prisma.vocabularyItem.count()).toBe(2);
     expect(await prisma.mission.count()).toBe(2);
-    expect(await prisma.vocabularySentence.count()).toBe(4);
+    expect(await prisma.vocabularySentence.count()).toBe(6);
     expect(await prisma.missionTarget.count()).toBe(2);
   });
 });

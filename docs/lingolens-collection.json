@@ -1,0 +1,33 @@
+{
+  "info": {
+    "name": "LingoLens Fase 11 - API Contract Flow",
+    "description": "Koleksi Postman untuk alur API. Jalankan berurutan setelah server aktif dan database lokal di-migrate serta di-seed. Reset demo menghapus data milik token yang digunakan.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api/v1" },
+    { "key": "token", "value": "" },
+    { "key": "missionId", "value": "1" },
+    { "key": "sessionId", "value": "" },
+    { "key": "exerciseId", "value": "10" },
+    { "key": "answer", "value": "wrong-answer-for-smoke-test" }
+  ],
+  "item": [
+    { "name": "01 Health", "request": { "method": "GET", "url": "{{baseUrl}}/health" } },
+    { "name": "02 Guest auth", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nickname\": \"Manual API test\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/auth/guest" }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.collectionVariables.set('token', pm.response.json().data.token);"] } }] },
+    { "name": "03 Read profile", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/me" } },
+    { "name": "04 Update profile", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nickname\": \"Manual API test\",\n  \"avatarKey\": \"owl\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/me" } },
+    { "name": "05 Collection", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/me/collection" } },
+    { "name": "06 List missions", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/missions" } },
+    { "name": "07 Mission detail", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/missions/{{missionId}}" } },
+    { "name": "08 Start session", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/missions/{{missionId}}/sessions" }, "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.collectionVariables.set('sessionId', pm.response.json().data.sessionId);"] } }] },
+    { "name": "09 Request hint", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/sessions/{{sessionId}}/hints" } },
+    { "name": "10 Scan cup", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"model\": \"coco-ssd\",\n  \"label\": \"cup\",\n  \"confidence\": 0.95,\n  \"latencyMs\": 25\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/sessions/{{sessionId}}/scan-attempts" } },
+    { "name": "11 Get exercises", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/sessions/{{sessionId}}/exercises" } },
+    { "name": "12 Submit answer (smoke test)", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"answer\": \"{{answer}}\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/sessions/{{sessionId}}/exercises/{{exerciseId}}/answers" } },
+    { "name": "13 Pronunciation attempt", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"heardText\": \"This is a cup.\",\n  \"recognitionConfidence\": 1\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/sessions/{{sessionId}}/pronunciation-attempts" } },
+    { "name": "14 Complete session (skip practice/speak)", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"skippedPractice\": true,\n  \"skippedSpeak\": true\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/sessions/{{sessionId}}/complete" } },
+    { "name": "15 Read collected vocabulary card", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/vocabulary/1" } },
+    { "name": "16 Reset demo user", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/dev/reset" } }
+  ]
+}

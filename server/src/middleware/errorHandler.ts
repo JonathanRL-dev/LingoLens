@@ -6,7 +6,7 @@ export const errorHandler: ErrorRequestHandler = (error: unknown, req, res, next
   if (res.headersSent) return next(error);
   const type = (error as { type?: string } | null)?.type;
   if (type === 'entity.too.large' || type === 'entity.parse.failed') {
-    res.status(400).json({ success: false, error: {
+    res.status(422).json({ success: false, error: {
       code: 'VALIDATION_ERROR', message: 'Body JSON tidak valid',
       details: { reason: type === 'entity.too.large' ? 'BODY_TOO_LARGE' : 'INVALID_JSON' },
     } });

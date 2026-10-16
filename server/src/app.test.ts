@@ -35,9 +35,9 @@ describe('middleware app', () => {
   it.each([
     ['besar', JSON.stringify({ a: 'a'.repeat(11000) }), 'BODY_TOO_LARGE'],
     ['rusak', '{"a":', 'INVALID_JSON'],
-  ])('JSON %s menjadi 400, tanpa stack', async (_name, body, reason) => {
+  ])('JSON %s menjadi 422 VALIDATION_ERROR, tanpa stack', async (_name, body, reason) => {
     const res = await request(app).post('/api/v1/x').set('Content-Type', 'application/json').send(body);
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(422);
     expect(res.body.error).toEqual({ code: 'VALIDATION_ERROR', message: 'Body JSON tidak valid', details: { reason } });
   });
   it('logger senyap di test dan menyamarkan token saat logging diaktifkan', async () => {
