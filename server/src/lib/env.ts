@@ -4,6 +4,11 @@ const envSchema = z
   .object({
     DATABASE_URL: z.string().startsWith('mysql://'),
     JWT_SECRET: z.string().min(32),
+    JWT_EXPIRES_IN: z
+      .string()
+      .regex(/^[1-9]\d*(ms|s|m|h|d|w|y)$/)
+      .default('21d'),
+    GLOBAL_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(300).default(300),
     CORS_ORIGIN: z
       .string()
       .transform((value) => value.split(',').map((origin) => origin.trim()))

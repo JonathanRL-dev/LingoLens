@@ -1,0 +1,20 @@
+meta {
+  name: Reset
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/dev/reset
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  JWT selalu wajib. Di production tambahkan X-Demo-Key secara lokal;
+  jangan simpan kunci demo aktual di koleksi Git.
+}

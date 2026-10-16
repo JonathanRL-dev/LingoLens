@@ -8,8 +8,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 enum SentenceKind {
@@ -43,6 +44,7 @@ enum SessionStatus {
 model User {
   id             String    @id @map("id") @db.Char(36)
   nickname       String    @map("nickname") @db.VarChar(40)
+  avatarKey      String?   @map("avatar_key") @db.VarChar(80)
   email          String?   @unique @map("email") @db.VarChar(120)
   passwordHash   String?   @map("password_hash") @db.VarChar(100)
   isGuest        Boolean   @default(true) @map("is_guest")

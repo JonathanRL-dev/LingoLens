@@ -12,9 +12,15 @@ const valid = {
   DEMO_RESET_KEY: 'TEST_ONLY_reset_0123456789',
 };
 describe('loadEnv', () => {
-  it('menerima env valid tanpa default dan tanpa memutasi source', () => {
+  it('menerima env valid dengan default baru tanpa memutasi source', () => {
     const source = Object.freeze({ ...valid });
-    expect(loadEnv(source)).toEqual({ ...valid, PORT: 3000, CORS_ORIGIN: [valid.CORS_ORIGIN] });
+    expect(loadEnv(source)).toEqual({
+      ...valid,
+      PORT: 3000,
+      CORS_ORIGIN: [valid.CORS_ORIGIN],
+      JWT_EXPIRES_IN: '21d',
+      GLOBAL_RATE_LIMIT_PER_MINUTE: 300,
+    });
     expect(source).toEqual(valid);
   });
   it('env kosong menyebut keenam variabel', () => {
@@ -59,5 +65,21 @@ describe('loadEnv', () => {
     );
     expect(() => loadEnv({ ...valid, NODE_ENV: 'other' })).toThrow('NODE_ENV');
     expect(() => loadEnv({ ...valid, DEMO_RESET_KEY: 'short' })).toThrow('DEMO_RESET_KEY');
+  });
+});
+
+describe('konfigurasi Fase 9', () => {
+  it('menerima durasi token dan batas demo yang dikonfigurasi', () => {
+    expect(
+      loadEnv({ ...valid, JWT_EXPIRES_IN: '7d', GLOBAL_RATE_LIMIT_PER_MINUTE: '600' }),
+    ).toMatchObject({ JWT_EXPIRES_IN: '7d', GLOBAL_RATE_LIMIT_PER_MINUTE: 600 });
+  });
+  it.each(['', 'forever', '0d', '-1d', '21'])('menolak durasi JWT %j', (duration) => {
+    expect(() => loadEnv({ ...valid, JWT_EXPIRES_IN: duration })).toThrow('JWT_EXPIRES_IN');
+  });
+  it.each(['0', '299', 'abc', '300.5'])('menolak batas rate %j', (max) => {
+    expect(() => loadEnv({ ...valid, GLOBAL_RATE_LIMIT_PER_MINUTE: max })).toThrow(
+      'GLOBAL_RATE_LIMIT_PER_MINUTE',
+    );
   });
 });

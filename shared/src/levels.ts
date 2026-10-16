@@ -1,5 +1,4 @@
-const APP_TIMEZONE = 'Asia/Jakarta';
-const LEVEL_STEP = 100;
+import { APP_TIMEZONE, LEVEL_STEP } from './constants';
 
 const MIN_LEVEL = 1;
 

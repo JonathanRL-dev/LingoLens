@@ -1,0 +1,22 @@
+meta {
+  name: Update Me
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/me
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "nickname": "Dewi",
+    "avatarKey": "owl"
+  }
+}

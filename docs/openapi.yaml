@@ -1,7 +1,4 @@
-# Sumber: feat/p1-api-types-g0 (e5833ebddeaa204410dd357a65adeaf145a9b80c).
-# Klarifikasi pengguna: reset JWT + kunci demo bersyarat; kartu terkunci ID + imageUrl.
-# ASUMSI: production dengan kunci reset hilang/salah memakai 404 NOT_FOUND.
-# ASUMSI kontrak asal: ID string; skema translations/related minimal; INTERNAL_ERROR belum dibekukan.
+# Sumber kontrak Fase 1; klarifikasi reset JWT, siluet ID/gambar, dan avatar nullable.
 openapi: 3.1.0
 info:
   title: LingoLens API
@@ -1076,7 +1073,10 @@ components:
           minimum: 0
           maximum: 9007199254740991
         avatarKey:
-          type: string
+          type:
+            - string
+            - 'null'
+          maxLength: 80
       required:
         - id
         - nickname
@@ -1422,7 +1422,10 @@ components:
           minLength: 1
           pattern: \S
         avatarKey:
-          type: string
+          type:
+            - string
+            - 'null'
+          maxLength: 80
       additionalProperties: false
     ScanRequest:
       type: object
