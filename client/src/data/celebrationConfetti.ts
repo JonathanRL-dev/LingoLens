@@ -1,0 +1,15 @@
+export const celebrationConfetti = [
+{ x: -130, y: -170, color: "bg-accent" },
+{ x: -98, y: -215, color: "bg-lens" },
+{ x: -62, y: -185, color: "bg-orange" },
+{ x: -24, y: -225, color: "bg-blush" },
+{ x: 18, y: -198, color: "bg-accent" },
+{ x: 55, y: -224, color: "bg-paper" },
+{ x: 94, y: -184, color: "bg-lens" },
+{ x: 132, y: -210, color: "bg-orange" },
+{ x: -118, y: -98, color: "bg-blush" },
+{ x: -74, y: -128, color: "bg-paper" },
+{ x: -35, y: -88, color: "bg-lens" },
+{ x: 42, y: -112, color: "bg-orange" },
+{ x: 86, y: -84, color: "bg-accent" },
+{ x: 122, y: -132, color: "bg-blush" }];

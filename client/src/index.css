@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Grandstander:wght@700;800;900&family=Noto+Sans+SC:wght@400;700&family=Noto+Sans:wght@400;700&display=swap');
+
+/* CRITICAL: THE FOLLOWING TAILWIND IMPORTS MUST NEVER BE DELETED OR REORDERED — DO NOT DELETE THIS COMMENT */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* END TAILWIND IMPORTS — ALL OTHER CSS MUST GO BELOW THIS LINE */
+
+:root {
+  --canvas: #E9E2D0;
+  --paper: #F6EFDF;
+  --card: #FFFBF0;
+  --ink: #1D2733;
+  --muted: #5A6470;
+  --primary: #2E6B4B;
+  --accent: #F4C430;
+  --signal: #C2461F;
+  --error: #A83A17;
+  --lens: #4DB6C6;
+  --blush: #F08CA0;
+  --orange: #F28C38;
+  --white: #FFFFFF;
+  --camera: #3A3F47;
+  --camera-dark: #14181F;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+body {
+  background: var(--canvas);
+}
+button,
+input,
+select {
+  font: inherit;
+}
+button:not(:disabled):active {
+  transform: translateY(3px);
+}
+/* Safe-area helpers */
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+/* Responsive reading columns: mobile padding stays as authored; from tablet up the
+   inline padding grows so content sits in a centred column of the given max width. */
+@media (min-width: 768px) {
+  .focus-column {
+    padding-left: max(1.5rem, calc((100% - 36rem) / 2));
+    padding-right: max(1.5rem, calc((100% - 36rem) / 2));
+  }
+  .list-column {
+    padding-left: max(1.5rem, calc((100% - 72rem) / 2));
+    padding-right: max(1.5rem, calc((100% - 72rem) / 2));
+  }
+  .profile-column {
+    padding-left: max(1.5rem, calc((100% - 48rem) / 2));
+    padding-right: max(1.5rem, calc((100% - 48rem) / 2));
+  }
+  .narrow-column {
+    padding-left: max(1.5rem, calc((100% - 28rem) / 2));
+    padding-right: max(1.5rem, calc((100% - 28rem) / 2));
+  }
+  .action-width {
+    width: 100%;
+    max-width: 28rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+@media (min-width: 1024px) {
+  .focus-column {
+    padding-left: max(2rem, calc((100% - 40rem) / 2));
+    padding-right: max(2rem, calc((100% - 40rem) / 2));
+  }
+  .list-column {
+    padding-left: max(2rem, calc((100% - 72rem) / 2));
+    padding-right: max(2rem, calc((100% - 72rem) / 2));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
