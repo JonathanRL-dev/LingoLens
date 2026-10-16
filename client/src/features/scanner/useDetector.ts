@@ -1,14 +1,17 @@
-﻿import { useEffect, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import type { components } from '../../api/schema';
 import { CocoDetector } from './CocoDetector';
-import type { Detection } from './detector';
+import type { Detection, Detector } from './detector';
 
 export type DetectorMission = Pick<components['schemas']['MissionDetail'], 'acceptedLabels'>;
 export type DetectorStatus = 'idle' | 'loading' | 'ready' | 'running' | 'error';
 
 const LOOP_DELAY_MS = 350;
 const REQUIRED_CONSECUTIVE_DETECTIONS = 3;
+const DEMO_SESSION_FLAG = 'lingolens:demo';
+const DEMO_MODE_EVENT = 'lingolens:demo-mode';
+const DEMO_MATCH_DELAY_MS = 2000;
 
 function isDocumentVisible(): boolean {
   return document.visibilityState !== 'hidden';
@@ -37,6 +40,81 @@ function waitForVideo(video: HTMLVideoElement, signal: AbortSignal): Promise<boo
   });
 }
 
+function acceptedDetections(found: Detection[], mission: DetectorMission): Detection[] {
+  const thresholds = new Map(
+    mission.acceptedLabels.map(({ label, minConfidence }) => [
+      label.trim().toLowerCase(),
+      minConfidence,
+    ]),
+  );
+
+  return found
+    .filter(({ label, confidence }) => {
+      const normalizedLabel = label.trim().toLowerCase();
+      if (normalizedLabel === 'person') return false;
+      const threshold = thresholds.get(normalizedLabel);
+      return threshold !== undefined && confidence >= threshold;
+    })
+    .sort((a, b) => b.confidence - a.confidence);
+}
+
+export function isDemoMode(): boolean {
+  if (typeof window === 'undefined') return false;
+  if (new URLSearchParams(window.location.search).get('demo') === '1') return true;
+
+  try {
+    return window.sessionStorage.getItem(DEMO_SESSION_FLAG) === '1';
+  } catch {
+    return false;
+  }
+}
+
+// JANGAN DIHAPUS: dipakai pada versi kumpul.
+export async function detectFromFile(
+  file: File,
+  detector: Detector,
+  mission: DetectorMission,
+): Promise<Detection | null> {
+  const imageUrl = URL.createObjectURL(file);
+  try {
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const element = new Image();
+      element.onload = () => resolve(element);
+      element.onerror = () => reject(new Error('Unable to load selected image'));
+      element.src = imageUrl;
+    });
+
+    const found = await detector.detect(image);
+    return acceptedDetections(found, mission)[0] ?? null;
+  } finally {
+    URL.revokeObjectURL(imageUrl);
+  }
+}
+
+export function useTripleTap(onTriple: () => void): () => void {
+  const tapsRef = useRef<number[]>([]);
+
+  return useCallback(() => {
+    const now = Date.now();
+    const taps = tapsRef.current.filter((tapTime) => now - tapTime <= 800);
+    taps.push(now);
+
+    if (taps.length < 3) {
+      tapsRef.current = taps;
+      return;
+    }
+
+    tapsRef.current = [];
+    try {
+      window.sessionStorage.setItem(DEMO_SESSION_FLAG, '1');
+    } catch {
+      // The callback still enables demo mode in the current view if storage is unavailable.
+    }
+    window.dispatchEvent(new Event(DEMO_MODE_EVENT));
+    onTriple();
+  }, [onTriple]);
+}
+
 export function useDetector(
   mission: DetectorMission,
   videoRef: RefObject<HTMLVideoElement | null>,
@@ -44,6 +122,7 @@ export function useDetector(
   const [status, setStatus] = useState<DetectorStatus>('idle');
   const [detections, setDetections] = useState<Detection[]>([]);
   const [match, setMatch] = useState<Detection | null>(null);
+  const [demoEnabled, setDemoEnabled] = useState(() => isDemoMode());
   const previousLabelRef = useRef<string | null>(null);
   const consecutiveCountRef = useRef(0);
   const acceptedLabelsKey = mission.acceptedLabels
@@ -52,31 +131,53 @@ export function useDetector(
     .join('|');
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) {
-      setStatus('idle');
-      setDetections([]);
-      setMatch(null);
-      return;
-    }
+    const refreshDemoMode = () => setDemoEnabled(isDemoMode());
+    window.addEventListener(DEMO_MODE_EVENT, refreshDemoMode);
+    return () => window.removeEventListener(DEMO_MODE_EVENT, refreshDemoMode);
+  }, []);
 
+  useEffect(() => {
     const controller = new AbortController();
     const { signal } = controller;
-    const detector = new CocoDetector();
-    const acceptedLabels = new Map(
-      mission.acceptedLabels.map(({ label, minConfidence }) => [
-        label.trim().toLowerCase(),
-        minConfidence,
-      ]),
-    );
     let timer: ReturnType<typeof setTimeout> | undefined;
-    let initialized = false;
-    let inferencing = false;
 
     previousLabelRef.current = null;
     consecutiveCountRef.current = 0;
     setDetections([]);
     setMatch(null);
+
+    if (demoEnabled) {
+      const target = mission.acceptedLabels[0];
+      if (!target) {
+        setStatus('error');
+        return () => controller.abort();
+      }
+
+      setStatus('running');
+      timer = setTimeout(() => {
+        if (signal.aborted) return;
+        const demoMatch: Detection = { label: target.label, confidence: 1 };
+        setDetections([demoMatch]);
+        setMatch(demoMatch);
+        setStatus('ready');
+      }, DEMO_MATCH_DELAY_MS);
+
+      return () => {
+        controller.abort();
+        if (timer !== undefined) clearTimeout(timer);
+      };
+    }
+
+    const video = videoRef.current;
+    if (!video) {
+      setStatus('idle');
+      return () => controller.abort();
+    }
+
+    const detector = new CocoDetector();
+    let initialized = false;
+    let inferencing = false;
+
     setStatus('loading');
 
     const runDetection = async (): Promise<void> => {
@@ -88,14 +189,7 @@ export function useDetector(
         const found = await detector.detect(video);
         if (signal.aborted) return;
 
-        const eligible = found
-          .filter(({ label, confidence }) => {
-            const normalizedLabel = label.trim().toLowerCase();
-            if (normalizedLabel === 'person') return false;
-            const threshold = acceptedLabels.get(normalizedLabel);
-            return threshold !== undefined && confidence >= threshold;
-          })
-          .sort((a, b) => b.confidence - a.confidence);
+        const eligible = acceptedDetections(found, mission);
         const best = eligible[0];
         setDetections(eligible);
 
@@ -188,8 +282,7 @@ export function useDetector(
       if (timer !== undefined) clearTimeout(timer);
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
-  }, [acceptedLabelsKey, mission.acceptedLabels, videoRef]);
+  }, [acceptedLabelsKey, demoEnabled, mission.acceptedLabels, videoRef]);
 
   return { status, detections, match };
 }
-
