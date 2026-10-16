@@ -1,0 +1,21 @@
+{
+  "request": {
+    "method": "DELETE",
+    "path": "/api/v1/dev/reset",
+    "headers": {
+      "X-Demo-Key": "example-only"
+    }
+  },
+  "responses": {
+    "204": null,
+    "401": {
+      "success": false,
+      "error": {
+        "code": "UNAUTHORIZED",
+        "message": "Kunci demo tidak sah.",
+        "details": null
+      }
+    }
+  },
+  "_note": "responses.204 = null adalah penanda body kosong. Respons HTTP 204 tidak mengirim JSON null."
+}

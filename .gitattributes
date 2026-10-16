@@ -1,1 +1,4 @@
 * text=auto
+docs/openapi.yaml text eol=lf
+docs/examples/*.json text eol=lf
+client/src/api/schema.d.ts text eol=lf

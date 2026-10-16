@@ -14,19 +14,26 @@
     "dev": "node scripts/dev.mjs",
     "dev:client": "npm run dev -w @lingolens/client",
     "dev:server": "npm run dev -w @lingolens/server",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present && tsc --noEmit -p scripts",
     "lint": "eslint .",
     "test": "vitest run",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "api:generate": "tsx scripts/generate-api.ts && openapi-typescript docs/openapi.yaml -o client/src/api/schema.d.ts",
+    "api:check": "tsx scripts/generate-api.ts --check && openapi-typescript docs/openapi.yaml -o client/src/api/schema.d.ts --check",
+    "api:types": "openapi-typescript docs/openapi.yaml -o client/src/api/schema.d.ts",
+    "api:lint": "redocly lint docs/openapi.yaml"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "eslint": "^9.39.0",
     "@eslint/js": "^9.39.0",
-    "typescript-eslint": "^8.46.0",
+    "@redocly/cli": "^2.64.1",
+    "@types/node": "^22.18.0",
+    "eslint": "^9.39.0",
     "eslint-config-prettier": "^10.1.8",
+    "openapi-typescript": "^7.13.0",
     "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0",
     "vitest": "^4.1.11",
-    "@types/node": "^22.18.0"
+    "zod": "^4.6.7"
   }
 }

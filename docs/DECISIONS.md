@@ -1,306 +1,124 @@
 # Catatan keputusan
 
-D-1 sampai D-9 belum dapat disalin karena BAHAN hanya berisi penanda kosong.
-D-10 sampai D-12 berasal dari arahan prompt; status implementasinya tidak disimpulkan dari judul.
-Konfigurasi dan flag P0-B dibaca dari `feat/p0-docker-env`, yang belum masuk ke `main`.
-
-| ID   | Judul                | Status                                |
-| ---- | -------------------- | ------------------------------------- |
-| D-1  | Belum tersedia       | Menunggu sumber                       |
-| D-2  | Belum tersedia       | Menunggu sumber                       |
-| D-3  | Belum tersedia       | Menunggu sumber                       |
-| D-4  | Belum tersedia       | Menunggu sumber                       |
-| D-5  | Belum tersedia       | Menunggu sumber                       |
-| D-6  | Belum tersedia       | Menunggu sumber                       |
-| D-7  | Belum tersedia       | Menunggu sumber                       |
-| D-8  | Belum tersedia       | Menunggu sumber                       |
-| D-9  | Belum tersedia       | Menunggu sumber                       |
-| D-10 | COCO-SSD             | Arahan awal; model belum tersedia     |
-| D-11 | guest-first          | Arahan awal; alur belum tersedia      |
-| D-12 | Inferensi di browser | Arahan awal; inferensi belum tersedia |
-
-## D-1: Belum tersedia
-
-**Status:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konteks:**
-
-TODO(user): isi dari dokumen sumber
-
-**Keputusan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Alasan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konsekuensi:**
-
-TODO(user): isi dari dokumen sumber
-
-## D-2: Belum tersedia
-
-**Status:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konteks:**
-
-TODO(user): isi dari dokumen sumber
-
-**Keputusan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Alasan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konsekuensi:**
-
-TODO(user): isi dari dokumen sumber
-
-## D-3: Belum tersedia
-
-**Status:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konteks:**
-
-TODO(user): isi dari dokumen sumber
-
-**Keputusan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Alasan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konsekuensi:**
-
-TODO(user): isi dari dokumen sumber
-
-## D-4: Belum tersedia
-
-**Status:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konteks:**
-
-TODO(user): isi dari dokumen sumber
-
-**Keputusan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Alasan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konsekuensi:**
-
-TODO(user): isi dari dokumen sumber
-
-## D-5: Belum tersedia
-
-**Status:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konteks:**
-
-TODO(user): isi dari dokumen sumber
-
-**Keputusan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Alasan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konsekuensi:**
-
-TODO(user): isi dari dokumen sumber
-
-## D-6: Belum tersedia
-
-**Status:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konteks:**
-
-TODO(user): isi dari dokumen sumber
-
-**Keputusan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Alasan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konsekuensi:**
-
-TODO(user): isi dari dokumen sumber
-
-## D-7: Belum tersedia
-
-**Status:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konteks:**
-
-TODO(user): isi dari dokumen sumber
-
-**Keputusan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Alasan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konsekuensi:**
-
-TODO(user): isi dari dokumen sumber
-
-## D-8: Belum tersedia
-
-**Status:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konteks:**
-
-TODO(user): isi dari dokumen sumber
-
-**Keputusan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Alasan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konsekuensi:**
-
-TODO(user): isi dari dokumen sumber
-
-## D-9: Belum tersedia
-
-**Status:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konteks:**
-
-TODO(user): isi dari dokumen sumber
-
-**Keputusan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Alasan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konsekuensi:**
-
-TODO(user): isi dari dokumen sumber
-
-## D-10: COCO-SSD
-
-**Status:** Arahan awal dari prompt; model belum tersedia di repo.
-
-**Konteks:** `client/public/models/` berisi placeholder. `docs/cv-model-card.md`
-disebut sebagai referensi dalam prompt, tetapi berkas tersebut belum ada.
-
-**Keputusan:** Catat COCO-SSD sebagai pilihan awal sesuai prompt, dengan
-`client/public/models/` sebagai lokasi aset model dan `docs/cv-model-card.md`
-sebagai referensi dokumentasi yang belum tersedia. Repo belum membuktikan model terpasang.
-
-**Alasan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konsekuensi:** Aset model dan model card belum dapat diperiksa.
-Versi model, label, dan detail implementasi belum tersedia dalam bahan.
-
-## D-11: guest-first
-
-**Status:** Arahan awal dari prompt; alur guest belum tersedia di repo.
-
-**Konteks:** Contoh environment pada P0-B memuat `VITE_ENABLE_COLLECTION=true`
-dan `VITE_ENABLE_PROFILE=true`. Flag tersebut tidak menetapkan aturan autentikasi.
-
-**Keputusan:** Catat guest-first sebagai arahan awal sesuai prompt.
-Kedua flag tetap dicatat sebagai konfigurasi fitur, tanpa menyimpulkan aturan aksesnya.
-
-**Alasan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konsekuensi:** Hak akses guest, kebutuhan akun, dan penyimpanan data belum dapat
-ditentukan dari flag atau struktur repo.
-
-## D-12: Inferensi di browser
-
-**Status:** Arahan awal dari prompt; inferensi belum tersedia di repo.
-
-**Konteks:** `client/public/models/` tersedia sebagai placeholder aset client.
-HTTPS tunnel untuk HP disebut dalam prompt, tetapi konfigurasi tunnel belum ada.
-
-**Keputusan:** Catat inferensi di browser sebagai arahan awal sesuai prompt,
-bersama kebutuhan HTTPS tunnel untuk HP. Struktur repo belum membuktikan
-inferensi atau tunnel sudah diimplementasikan.
-
-**Alasan:**
-
-TODO(user): isi dari dokumen sumber
-
-**Konsekuensi:** Inferensi dan akses HP melalui HTTPS belum dapat diverifikasi.
-Library inferensi serta penyedia tunnel belum ditentukan dalam bahan.
-
-## 2026-10-16 — Kerangka server Express dan environment
-
-- Express 5 dipilih; penerusan galat handler async mengikuti perilaku Express 5.
-- Server memakai CommonJS, TypeScript ES2022 strict, dan tsx untuk dev/demo;
-  build produksi berada di luar lingkup prompt ini.
-- Prisma CLI dan @prisma/client dipin pada major 6.x. url datasource akan berada
-  di schema.prisma saat fase database dikerjakan; tidak ada perubahan Prisma schema di sini.
-- .env berada di server/ dan dimuat melalui --env-file; tanpa dotenv.
-  server/.env.example yang sudah ada diperbarui, tanpa membuat contoh kedua di akar.
-- Enam variabel divalidasi saat impor; pesan galat hanya menyebut nama variabel.
-  Waktu data aplikasi akan disimpan UTC; belum ada penyimpanan pada scaffold ini.
-- Alias @shared menuju ../shared/src/index.ts di tsconfig dan Vitest; shared tidak diubah.
-- Main masih berbasis Fase 0.2; cabang Fase 1 tidak digabung dalam prompt ini.
-- Catatan integrasi: skrip dev:server akar masih menyebut @lingolens/server;
-  gunakan npm run dev -w server. Batas perubahan prompt melarang perbaikan skrip akar itu.
-- Pada main, shared belum mendeklarasikan Zod; gunakan Zod 4.6.7 yang sebelumnya
-  dipakai jalur Fase 1. Vitest server dan root terpasang pada versi 4.1.12 yang sama.
-- Audit instalasi mencatat tiga temuan high pada rantai Prisma 6 / @prisma/config /
-  deepmerge-ts. Saran npm berpindah ke Prisma 7; tidak diterapkan karena batas major 6.
-
-## 2026-10-16 — Middleware server dan usulan INTERNAL_ERROR ke PM
-
-- Usulan PM: INTERNAL_ERROR khusus server untuk HTTP 500, di luar sepuluh kode
-  Fase 1; belum merupakan perubahan shared atau persetujuan kontrak OpenAPI.
-- Shared di main hanya mengekspor APP_NAME. Atas persetujuan pengguna pada prompt
-  ini, tipe ErrorCode sementara diturunkan dari tabel status di lib/errors.ts,
-  tanpa menyalin enum Zod. Impor ErrorCodeSchema menunggu integrasi Fase 1.
-- Batas per IP: global 300/15 menit, ketat 60/menit; OPTIONS dilewati.
-  strictLimiter belum dipasang ke rute, pemasangannya masuk Fase 9.
-- JSON rusak atau di atas 10 kb memakai 400 VALIDATION_ERROR, details.reason.
-- CORS mengizinkan header Authorization, Content-Type, X-Demo-Key.
-- JWT memverifikasi HS256 dan sub string tanpa lookup database.
-- Galat internal dicatat ke Pino; respons tidak memuat stack atau pesan aslinya.
-  Header Authorization dan X-Demo-Key disamarkan pada log request.
+Sumber D-1–D-9: rencana eksekusi proyek, 13 Oktober 2026.
+Status kontrak Fase 1: draft untuk tinjauan PM; belum dibekukan atau ditandatangani.
+Dokumen ini tidak menyatakan fitur fase berikutnya sudah diimplementasikan.
+
+| ID   | Keputusan                                                                                                    | Dampak                                                           |
+| ---- | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| D-1  | Terjemahan kalimat memakai sentence_translations; atribusi per kalimat                                       | Database Fase 8: 16 tabel, utf8mb4                               |
+| D-2  | Tiga kalimat berbeda per kata, satu per kind                                                                 | Kartu dan ucapan memakai choice; kartu tidak membuka cloze/order |
+| D-3  | Bobot sesi 0,55 latihan / 0,45 ucapan                                                                        | Konstanta dan rumus tunggal di shared                            |
+| D-4  | XP dikreditkan hanya pada complete; welcome 20 saat guest dibuat                                             | scan-attempts hanya menampilkan XP yang akan diterima            |
+| D-5  | Ambang level kumulatif: 100, 300, 600                                                                        | Kelebihan XP terbawa; 130 XP = level 2, 30/200                   |
+| D-6  | complete menerima skippedPractice?, skippedSpeak?                                                            | Tanpa skip, latihan belum selesai ditolak PRACTICE_INCOMPLETE    |
+| D-7  | Workspace shared untuk kode murni, konstanta, skema, seed                                                    | MSW dan server memakai kode yang sama                            |
+| D-8  | result_json untuk respons complete idempoten, latihan deterministik dari sessionId, state pada GET exercises | Persistensi dan pembentukan soal dikerjakan pada fase berikutnya |
+| D-9  | Mandarin hanya terjemahan pendukung, label jika belum ditinjau, suara zh-CN bila tersedia                    | Bukan bahasa latihan                                             |
+| D-10 | COCO-SSD sebagai model awal                                                                                  | Inferensi browser; model dan evaluasi di Fase 4                  |
+| D-11 | guest-first                                                                                                  | JWT akun tamu melalui auth/guest                                 |
+| D-12 | Inferensi di browser                                                                                         | Gambar tidak dikirim ke API                                      |
+
+## Penyesuaian Fase 1 berdasarkan berkas penilaian
+
+Rencana fase menyebut rata-rata nilai soal × 100 tanpa memperinci pembulatan.
+scoring.md yang disediakan pengguna secara eksplisit meminta pembulatan. Implementasi
+practiceAccuracy mengikuti detail tersebut: [1, 1, 0.5] → 83, [1, 0, 0] → 33.
+Poin jawaban, skor sesi, dan komponen XP tetap memakai Math.round sesuai spesifikasi.
+
+## Asumsi kontrak untuk tinjauan PM
+
+- ID berupa string; index exercise mulai 0.
+- Nilai kategori, difficulty, dan status tidak dibatasi enum rekaan.
+- Bentuk translations, related, exampleSentence tidak dirinci Fase 1:
+  objek minimal; contoh kalimat memakai id dan text sebagai ilustrasi.
+- User mengikuti profil GET /me; avatarKey opsional mengikuti PATCH /me.
+- vocabulary pada koleksi terkunci hanya berisi id.
+- POST guest dan pembuatan sesi memakai 201; operasi lain 200, reset 204.
+- Nama header kunci reset: X-Demo-Reset-Key.
+- details error berupa objek atau null. Enum tetap tepat sepuluh kode;
+  spesifikasi belum menetapkan kode internal untuk body 500.
+- Kata kasar belum memiliki daftar resmi. nicknameWithPolicy menerima kebijakan
+  murni dari pemanggil; server wajib memasok kebijakan ketika diimplementasikan.
+
+## Tinjauan dan pembekuan G0
+
+Status: menunggu tinjauan serta tanda tangan PM.
+PM perlu memeriksa skema, contoh, asumsi di atas, dan pemetaan kode error sebelum
+mencatat nama serta tanggal persetujuan di sini. Tidak ada tanda tangan yang direkayasa.
+
+## G0 — Pembekuan kontrak API Fase 1
+
+Tanggal pemeriksaan teknis: 16 Oktober 2026 (Asia/Jakarta).
+Status: entri pembekuan disiapkan, menunggu tinjauan dan tanda tangan PM.
+Hasil pemeriksaan teknis ini tidak menyatakan seluruh ketidakcocokan telah selesai.
+
+Hal yang diajukan untuk dibekukan:
+
+- Basis /api/v1, 16 operasi beserta operationId, request, respons, dan status HTTP
+  pada docs/openapi.yaml; Bearer JWT serta header reset demo X-Demo-Key.
+- Amplop sukses/error, sepuluh kode error, dan batas pembukaan kunci jawaban.
+- Bentuk Exercise choice/cloze/order, Vocabulary, Mission, dan komponen bersama.
+- Skema Zod di shared/src/schemas, 16 contoh JSON per operationId, dan skenario M4.
+- Konstanta serta fungsi murni skor, XP, level kumulatif, dan tanggal streak WIB.
+- Tipe frontend hasil OpenAPI di client/src/api/schema.d.ts.
+
+ASUMSI jalur: workspace frontend Fase 0 bernama client, bukan frontend.
+api:types menggunakan jalur tipe yang sudah ada agar tidak membuat salinan kedua.
+
+Verifikasi:
+
+- npm run api:lint: tanpa error; tiga peringatan (lisensi API belum ditentukan,
+  respons komponen 409 tidak digunakan, security scheme demoKey tidak digunakan).
+- npm run api:types: berhasil; 16 referensi operations pada tipe hasil generator.
+- Audit silang: 16 operationId memiliki skema Zod berpadanan; sepuluh kode error
+  identik. Tidak ada bidang kunci jawaban pada Exercise, Vocabulary, Mission,
+  atau contoh exercises/vocabulary. correctAnswer hanya pada respons answers.
+- npm run typecheck, npm run lint, npm run test, dan npm run test -w shared:
+  lulus; 185 uji. Lingkungan pemeriksaan memakai Node 24.20.0; Node 22 sesuai
+  .nvmrc belum diverifikasi pada pemeriksaan ini.
+- Tiga belas konstanta Fase 1 sesuai nilai spesifikasi; uji batas level, tengah
+  malam WIB, bobot/pita, ucapan, susun kata token ganda, serta XP lulus.
+- Angka contoh dihitung manual sesuai M4 dan diuji konsistensinya; contoh tidak
+  mengimpor scoring.ts. Tidak ada dependensi yang ditambahkan pada M5.
+
+Ketidakcocokan yang ditemukan dan tidak diperbaiki dalam M5:
+
+1. GuestRequest dan UpdateMeRequest: Zod melakukan trim dan membatasi nickname
+   1–20 karakter sesuai M3. OpenAPI belum memiliki maxLength 20 dan tidak
+   menjelaskan normalisasi trim. Bentuk 34 komponen lainnya selaras setelah
+   perbedaan representasi union dan metadata dokumentasi dinormalisasi.
+2. Sumber generator scripts/generate-api.ts dan scripts/api-contract.ts masih
+   memakai format/nama contoh lama dan belum mencerminkan penyesuaian M2–M4.
+   npm run api:check gagal pada docs/examples/Health.json. Jangan menjalankan
+   api:generate untuk menyinkronkan sebelum sumber generator diperbaiki lewat
+   tugas yang disetujui PM; perintah itu dapat menimpa kontrak dan contoh baru.
+   Skrip api:types hanya membaca OpenAPI dan aman untuk regenerasi tipe saja.
+3. Asumsi pada bagian lama dokumen ini dan PROJECT_CONTEXT.md masih menyebut
+   X-Demo-Reset-Key serta nicknameWithPolicy. Kontrak M2 dan skema M3 kini
+   memakai X-Demo-Key; aturan kata kasar berada di server, tanpa helper tersebut
+   di shared. Catatan lama dipertahankan sesuai batas perubahan M5.
+
+Perubahan setelah entri ini atas kontrak, skema, contoh, atau rumus yang diajukan
+untuk dibekukan hanya melalui persetujuan PM dan dicatat di DECISIONS.md.
+PM perlu meninjau ketidakcocokan di atas sebelum menetapkan pembekuan efektif.
+
+Nama PM:
+Tanggal persetujuan:
+Tanda tangan PM:
+
+## Keputusan implementasi server (16 Oktober 2026)
+
+- Server memakai Express 5, Prisma 6.x, TypeScript CommonJS, dan tsx; `.env`
+  dimuat melalui `--env-file` dari `server/`, tanpa dotenv.
+- Validasi environment dilakukan saat modul env diimpor. Pesan validasi hanya
+  menyebut nama variabel, bukan nilainya.
+- JWT memakai HS256. Reset mewajibkan JWT untuk menentukan pemilik data dan
+  menerima `X-Demo-Key` sebagai kunci tambahan ketika kebijakan deployment
+  mensyaratkannya.
+- CORS mengizinkan `Authorization`, `Content-Type`, dan `X-Demo-Key`; body
+  JSON dibatasi 10 kb. Galat internal dicatat lewat Pino tanpa mengirim stack
+  atau pesan internal ke respons.
+- `INTERNAL_ERROR` dipakai server untuk HTTP 500. Kode tersebut berada di luar
+  sepuluh nilai `ErrorCode` kontrak Fase 1 sampai ada persetujuan perubahan
+  kontrak.

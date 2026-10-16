@@ -1,0 +1,53 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/v1/missions/m1",
+    "headers": {
+      "Authorization": "Bearer example-jwt-not-a-real-token"
+    }
+  },
+  "responses": {
+    "200": {
+      "success": true,
+      "data": {
+        "id": "m1",
+        "slug": "untuk-minum",
+        "title": "Untuk minum",
+        "hint": "Cari cangkir atau botol",
+        "category": "Minum dan makan",
+        "difficulty": "easy",
+        "rewardXp": 110,
+        "status": "available",
+        "bestStars": 0,
+        "exercisePlan": [
+          "choice",
+          "cloze",
+          "order"
+        ],
+        "acceptedLabels": [
+          {
+            "model": "coco-ssd",
+            "label": "cup",
+            "minConfidence": 0.6,
+            "vocabularyId": "v-cup"
+          },
+          {
+            "model": "coco-ssd",
+            "label": "bottle",
+            "minConfidence": 0.6,
+            "vocabularyId": "v-bottle"
+          }
+        ],
+        "targetCount": 1
+      }
+    },
+    "404": {
+      "success": false,
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Misi tidak ditemukan.",
+        "details": null
+      }
+    }
+  }
+}

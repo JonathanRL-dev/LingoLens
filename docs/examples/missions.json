@@ -1,0 +1,96 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/v1/missions",
+    "headers": {
+      "Authorization": "Bearer example-jwt-not-a-real-token"
+    }
+  },
+  "responses": {
+    "200": {
+      "success": true,
+      "data": [
+        {
+          "id": "m1",
+          "slug": "untuk-minum",
+          "title": "Untuk minum",
+          "hint": "Cari cangkir atau botol",
+          "category": "Minum dan makan",
+          "difficulty": "easy",
+          "rewardXp": 110,
+          "status": "available",
+          "bestStars": 0,
+          "exercisePlan": [
+            "choice",
+            "cloze",
+            "order"
+          ]
+        },
+        {
+          "id": "m2",
+          "slug": "untuk-makan",
+          "title": "Untuk makan",
+          "hint": "Cari mangkuk, sendok, pisang, atau apel",
+          "category": "Minum dan makan",
+          "difficulty": "easy",
+          "rewardXp": 110,
+          "status": "locked",
+          "bestStars": 0,
+          "exercisePlan": [
+            "choice",
+            "cloze",
+            "order"
+          ]
+        },
+        {
+          "id": "m3",
+          "slug": "untuk-dibaca",
+          "title": "Untuk dibaca",
+          "hint": "Cari buku, jam, atau tas punggung",
+          "category": "Belajar",
+          "difficulty": "easy",
+          "rewardXp": 110,
+          "status": "locked",
+          "bestStars": 0,
+          "exercisePlan": [
+            "choice",
+            "cloze",
+            "order"
+          ]
+        },
+        {
+          "id": "m4",
+          "slug": "untuk-duduk",
+          "title": "Untuk duduk",
+          "hint": "Cari kursi atau laptop",
+          "category": "Rumah",
+          "difficulty": "easy",
+          "rewardXp": 110,
+          "status": "locked",
+          "bestStars": 0,
+          "exercisePlan": [
+            "choice",
+            "cloze",
+            "order"
+          ]
+        },
+        {
+          "id": "m5",
+          "slug": "untuk-menelepon",
+          "title": "Untuk menelepon",
+          "hint": "Cari telepon",
+          "category": "Alat",
+          "difficulty": "easy",
+          "rewardXp": 110,
+          "status": "locked",
+          "bestStars": 0,
+          "exercisePlan": [
+            "choice",
+            "cloze",
+            "order"
+          ]
+        }
+      ]
+    }
+  }
+}

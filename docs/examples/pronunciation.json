@@ -1,0 +1,34 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/api/v1/sessions/session-demo/pronunciation-attempts",
+    "headers": {
+      "Authorization": "Bearer example-jwt-not-a-real-token"
+    },
+    "body": {
+      "heardText": "This is my red cup.",
+      "recognitionConfidence": 1,
+      "sentenceId": "s-cup-choice"
+    }
+  },
+  "responses": {
+    "200": {
+      "success": true,
+      "data": {
+        "score": 100,
+        "level": "good",
+        "passed": true,
+        "feedback": "Kalimat berhasil dikenali",
+        "targetWordHeard": true
+      }
+    },
+    "409": {
+      "success": false,
+      "error": {
+        "code": "SESSION_COMPLETED",
+        "message": "Sesi telah selesai.",
+        "details": null
+      }
+    }
+  }
+}

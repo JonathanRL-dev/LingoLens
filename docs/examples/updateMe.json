@@ -1,0 +1,37 @@
+{
+  "request": {
+    "method": "PATCH",
+    "path": "/api/v1/me",
+    "headers": {
+      "Authorization": "Bearer example-jwt-not-a-real-token"
+    },
+    "body": {
+      "nickname": "Bintang",
+      "avatarKey": "star"
+    }
+  },
+  "responses": {
+    "200": {
+      "success": true,
+      "data": {
+        "id": "u-demo",
+        "nickname": "Bintang",
+        "level": 1,
+        "totalXp": 20,
+        "xpInLevel": 20,
+        "xpForNextLevel": 100,
+        "streak": 0,
+        "collectedCount": 0,
+        "avatarKey": "star"
+      }
+    },
+    "422": {
+      "success": false,
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "message": "Nickname tidak sah.",
+        "details": null
+      }
+    }
+  }
+}

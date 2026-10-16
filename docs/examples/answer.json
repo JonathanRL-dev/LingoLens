@@ -1,0 +1,256 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/api/v1/sessions/session-demo/exercises/s-cup-choice/answers",
+    "headers": {
+      "Authorization": "Bearer example-jwt-not-a-real-token"
+    },
+    "body": {
+      "answer": "o2"
+    }
+  },
+  "responses": {
+    "200": {
+      "success": true,
+      "data": {
+        "correct": false,
+        "attemptNo": 1,
+        "attemptsLeft": 1,
+        "pointsAwarded": 0,
+        "hint": "Arti kata diawali huruf c."
+      }
+    },
+    "404": {
+      "success": false,
+      "error": {
+        "code": "EXERCISE_NOT_FOUND",
+        "message": "Soal tidak ditemukan pada sesi ini.",
+        "details": null
+      }
+    },
+    "409": {
+      "success": false,
+      "error": {
+        "code": "ATTEMPTS_EXHAUSTED",
+        "message": "Kesempatan menjawab telah habis.",
+        "details": null
+      }
+    }
+  },
+  "_note": "Contoh utama menunjukkan salah pertama. Alur sempurna complete memakai tiga skenario CorrectFirstAttempt; skenario salah dan habis adalah cabang terpisah, bukan dijumlahkan.",
+  "scenarios": {
+    "choiceCorrectFirstAttempt": {
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/sessions/session-demo/exercises/s-cup-choice/answers",
+        "headers": {
+          "Authorization": "Bearer example-jwt-not-a-real-token"
+        },
+        "body": {
+          "answer": "o1"
+        }
+      },
+      "responses": {
+        "200": {
+          "success": true,
+          "data": {
+            "correct": true,
+            "attemptNo": 1,
+            "attemptsLeft": 1,
+            "pointsAwarded": 10
+          }
+        }
+      }
+    },
+    "choiceExhausted": {
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/sessions/session-demo/exercises/s-cup-choice/answers",
+        "headers": {
+          "Authorization": "Bearer example-jwt-not-a-real-token"
+        },
+        "body": {
+          "answer": "o3"
+        }
+      },
+      "responses": {
+        "200": {
+          "success": true,
+          "data": {
+            "correct": false,
+            "attemptNo": 2,
+            "attemptsLeft": 0,
+            "pointsAwarded": 0,
+            "correctAnswer": "cangkir"
+          }
+        }
+      }
+    },
+    "clozeCorrectFirstAttempt": {
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/sessions/session-demo/exercises/s-cup-cloze/answers",
+        "headers": {
+          "Authorization": "Bearer example-jwt-not-a-real-token"
+        },
+        "body": {
+          "answer": "c1"
+        }
+      },
+      "responses": {
+        "200": {
+          "success": true,
+          "data": {
+            "correct": true,
+            "attemptNo": 1,
+            "attemptsLeft": 1,
+            "pointsAwarded": 10
+          }
+        }
+      }
+    },
+    "clozeFirstWrong": {
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/sessions/session-demo/exercises/s-cup-cloze/answers",
+        "headers": {
+          "Authorization": "Bearer example-jwt-not-a-real-token"
+        },
+        "body": {
+          "answer": "c2"
+        }
+      },
+      "responses": {
+        "200": {
+          "success": true,
+          "data": {
+            "correct": false,
+            "attemptNo": 1,
+            "attemptsLeft": 1,
+            "pointsAwarded": 0,
+            "hint": "Kata diawali huruf c."
+          }
+        }
+      }
+    },
+    "clozeExhausted": {
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/sessions/session-demo/exercises/s-cup-cloze/answers",
+        "headers": {
+          "Authorization": "Bearer example-jwt-not-a-real-token"
+        },
+        "body": {
+          "answer": "c3"
+        }
+      },
+      "responses": {
+        "200": {
+          "success": true,
+          "data": {
+            "correct": false,
+            "attemptNo": 2,
+            "attemptsLeft": 0,
+            "pointsAwarded": 0,
+            "correctAnswer": "cup"
+          }
+        }
+      }
+    },
+    "orderCorrectFirstAttempt": {
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/sessions/session-demo/exercises/s-cup-order/answers",
+        "headers": {
+          "Authorization": "Bearer example-jwt-not-a-real-token"
+        },
+        "body": {
+          "answer": [
+            "t1",
+            "t2",
+            "t3",
+            "t4",
+            "t5"
+          ]
+        }
+      },
+      "responses": {
+        "200": {
+          "success": true,
+          "data": {
+            "correct": true,
+            "attemptNo": 1,
+            "attemptsLeft": 1,
+            "pointsAwarded": 10
+          }
+        }
+      }
+    },
+    "orderFirstWrong": {
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/sessions/session-demo/exercises/s-cup-order/answers",
+        "headers": {
+          "Authorization": "Bearer example-jwt-not-a-real-token"
+        },
+        "body": {
+          "answer": [
+            "t4",
+            "t1",
+            "t5",
+            "t3",
+            "t2"
+          ]
+        }
+      },
+      "responses": {
+        "200": {
+          "success": true,
+          "data": {
+            "correct": false,
+            "attemptNo": 1,
+            "attemptsLeft": 1,
+            "pointsAwarded": 0,
+            "hint": "Kata pertama adalah I."
+          }
+        }
+      }
+    },
+    "orderExhausted": {
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/sessions/session-demo/exercises/s-cup-order/answers",
+        "headers": {
+          "Authorization": "Bearer example-jwt-not-a-real-token"
+        },
+        "body": {
+          "answer": [
+            "t1",
+            "t4",
+            "t2",
+            "t3",
+            "t5"
+          ]
+        }
+      },
+      "responses": {
+        "200": {
+          "success": true,
+          "data": {
+            "correct": false,
+            "attemptNo": 2,
+            "attemptsLeft": 0,
+            "pointsAwarded": 0,
+            "correctAnswer": [
+              "I",
+              "put",
+              "the",
+              "cup",
+              "here"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

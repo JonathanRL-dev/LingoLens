@@ -1,5 +1,3 @@
-export const APP_NAME = 'LingoLens';
-
 export const SCAN_XP = 50 as const;
 export const PRACTICE_XP = 30 as const;
 export const SPEAK_XP = 30 as const;
@@ -13,4 +11,5 @@ export const SPEAK_CAP_WITHOUT_TARGET = 60 as const;
 export const STAR_BANDS = { three: 80, two: 50 } as const;
 export const DEFAULT_ASR_CONFIDENCE = 0.85 as const;
 export const LEVEL_STEP = 100 as const;
-export const APP_TIMEZONE = 'Asia/Jakarta' as const;
+export const APP_TIMEZONE = "Asia/Jakarta" as const;
+export const APP_NAME = "LingoLens" as const;

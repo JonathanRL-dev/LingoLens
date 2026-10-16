@@ -1,0 +1,26 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/api/v1/sessions/session-demo/hints",
+    "headers": {
+      "Authorization": "Bearer example-jwt-not-a-real-token"
+    }
+  },
+  "responses": {
+    "200": {
+      "success": true,
+      "data": {
+        "hint": "Cari cangkir di dekatmu",
+        "hintCount": 1
+      }
+    },
+    "409": {
+      "success": false,
+      "error": {
+        "code": "SESSION_COMPLETED",
+        "message": "Sesi telah selesai.",
+        "details": null
+      }
+    }
+  }
+}
